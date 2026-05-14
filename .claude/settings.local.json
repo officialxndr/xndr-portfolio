@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;\" + $env:PATH; node --version; npm --version)",
+      "PowerShell($src = \"c:\\\\Users\\\\zande\\\\OneDrive\\\\Documents\\\\website\\\\temp-scaffold\"; $dst = \"c:\\\\Users\\\\zande\\\\OneDrive\\\\Documents\\\\website\"; Get-ChildItem -Path $src -Force | ForEach-Object { Move-Item -Path $_.FullName -Destination $dst -Force }; Remove-Item $src -Recurse -Force; Get-ChildItem $dst -Force | Select-Object Name)",
+      "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;\" + $env:PATH; Set-Location \"c:\\\\Users\\\\zande\\\\OneDrive\\\\Documents\\\\website\"; npm create vite@latest temp-scaffold -- --template react 2>&1; dir temp-scaffold)",
+      "PowerShell($src = \"c:\\\\Users\\\\zande\\\\OneDrive\\\\Documents\\\\website\\\\temp-scaffold\"; $dst = \"c:\\\\Users\\\\zande\\\\OneDrive\\\\Documents\\\\website\"; Get-ChildItem -Path $src -Force | ForEach-Object { Copy-Item -Path $_.FullName -Destination \\(Join-Path $dst $_.Name\\) -Recurse -Force }; Remove-Item $src -Recurse -Force; Get-ChildItem $dst -Force | Select-Object Name)"
+    ]
+  }
+}

@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+@theme {
+  --color-base: #060509;
+  --color-surface: #0f0b1a;
+  --color-surface-2: #160f24;
+  --color-border: #2a1f45;
+  --color-text: #ede8f8;
+  --color-muted: #7a6898;
+  --color-accent: #b08fff;
+  --color-accent-dim: rgba(176, 143, 255, 0.08);
+
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+  background-color: #060509; /* fallback before canvas renders */
+}
+
+body, #root {
+  height: 100%;
+  background-color: transparent;
+  color: #ede8f8;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(176, 143, 255, 0.3);
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #060509; }
+::-webkit-scrollbar-thumb { background: #2a1f45; border-radius: 2px; }
+
+/* ── Glass utilities ─────────────────────────────────────────────────────── */
+
+.glass {
+  background: rgba(176, 143, 255, 0.06);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  border: 1px solid rgba(176, 143, 255, 0.16);
+  box-shadow:
+    0 4px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+}
+
+.glass-card {
+  background: rgba(176, 143, 255, 0.07);
+  backdrop-filter: blur(28px) saturate(1.4);
+  -webkit-backdrop-filter: blur(28px) saturate(1.4);
+  border: 1px solid rgba(176, 143, 255, 0.18);
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(176, 143, 255, 0.34);
+  box-shadow:
+    0 16px 56px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 0 40px rgba(176, 143, 255, 0.12);
+}
+
+.glass-dark {
+  background: rgba(6, 5, 9, 0.65);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(176, 143, 255, 0.10);
+}
+
+/* ── Other utilities ─────────────────────────────────────────────────────── */
+
+.glow-accent {
+  box-shadow: 0 0 28px rgba(176, 143, 255, 0.22);
+}
+
+.text-glow {
+  text-shadow: 0 0 40px rgba(176, 143, 255, 0.5);
+}
+
+.sunken {
+  box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.75), inset 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(176, 143, 255, 0.18);
+  color: #7a6898;
+  background: rgba(176, 143, 255, 0.06);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.chip:hover {
+  border-color: rgba(176, 143, 255, 0.38);
+  color: #ede8f8;
+  background: rgba(176, 143, 255, 0.10);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 0 20px rgba(176,143,255,0.08);
+}
+
+.chip.active {
+  border-color: rgba(176, 143, 255, 0.55);
+  color: #d4bbff;
+  background: rgba(176, 143, 255, 0.14);
+  box-shadow: 0 0 24px rgba(176, 143, 255, 0.20), inset 0 1px 0 rgba(255,255,255,0.09);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
