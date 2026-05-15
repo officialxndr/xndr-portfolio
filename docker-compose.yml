@@ -1,0 +1,17 @@
+services:
+  portfolio:
+    build:
+      context: .
+      args:
+        # These are baked into the frontend at build time — change requires rebuild
+        VITE_SITE_NAME: ${VITE_SITE_NAME}
+        VITE_TAGLINE: ${VITE_TAGLINE}
+    ports:
+      - "${HOST_PORT:-3001}:3001"
+    env_file: .env
+    volumes:
+      # SQLite database — persists project/config data across container restarts
+      - ./data:/app/data
+      # Uploaded media (images, videos, etc.)
+      - ./uploads:/app/public/uploads
+    restart: unless-stopped

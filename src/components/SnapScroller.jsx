@@ -27,6 +27,7 @@ export default function SnapScroller({ children, id }) {
     const clamped = Math.max(0, Math.min(childCount - 1, index))
     isAnimating.current = true
     currentIdx.current = clamped
+    window.dispatchEvent(new CustomEvent('snap-section', { detail: clamped }))
     animate(y, -clamped * window.innerHeight, {
       type: 'spring',
       stiffness: 260,
@@ -104,6 +105,12 @@ export default function SnapScroller({ children, id }) {
       el.removeEventListener('touchmove', handleTouchMove)
     }
   }, [handleWheel, handleTouchStart, handleTouchMove])
+
+  useEffect(() => {
+    const handler = (e) => snapTo(e.detail)
+    window.addEventListener('snap-to-section', handler)
+    return () => window.removeEventListener('snap-to-section', handler)
+  }, [snapTo])
 
   return (
     <div

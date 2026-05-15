@@ -54,4 +54,28 @@
       </svg>
     ),
   },
+  {
+    type: 'carousel',
+    label: 'Image Carousel',
+    description: 'Sliding gallery with thumbnails — good for UI screenshots',
+    defaultData: { slides: [] },
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
+        <rect x="3" y="2.5" width="10" height="11" rx="1.5"/>
+        <path d="M1 5v6M15 5v6" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  {
+    type: 'model',
+    label: '3D Model',
+    description: 'Interactive GLB/GLTF viewer — drag to rotate, scroll to zoom',
+    defaultData: { url: '', caption: '' },
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
+        <path d="M8 1.5L14.5 5v6L8 14.5 1.5 11V5L8 1.5z" strokeLinejoin="round"/>
+        <path d="M8 1.5v13M1.5 5l6.5 3.5L14.5 5" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
 ]

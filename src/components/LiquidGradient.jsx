@@ -225,10 +225,23 @@ export default function LiquidGradient() {
     // ─── Loop ─────────────────────────────────────────────────────────────────
     const FRAME_BUDGET = isMobile ? 1000 / 30 : 0
     let rafId, lastRenderTime = 0
+    let orientationActive = false
+    let autoT = 0
+
     const tick = () => {
       rafId = requestAnimationFrame(tick)
       const delta = Math.min(clock.getDelta(), 0.05)
       uniforms.uTime.value += delta
+
+      // Auto-animation fallback when gyroscope hasn't fired yet
+      if (isMobile && !orientationActive) {
+        autoT += delta * 0.35
+        addTouch(
+          0.5 + Math.sin(autoT * 1.3) * 0.38,
+          0.5 + Math.sin(autoT * 0.8) * 0.32,
+        )
+      }
+
       if (FRAME_BUDGET) {
         const now = performance.now()
         if (now - lastRenderTime < FRAME_BUDGET) return
@@ -252,6 +265,36 @@ export default function LiquidGradient() {
       mesh.geometry = new THREE.PlaneGeometry(vs.width, vs.height, 1, 1)
     }
 
+    // ─── Gyroscope (mobile) ───────────────────────────────────────────────────
+    let onOrientationHandler = null
+    if (isMobile) {
+      const onOrientation = (e) => {
+        if (e.gamma === null || e.beta === null) return
+        orientationActive = true
+        // gamma: left/right tilt (-90..90), beta: front/back tilt (0..90 when upright)
+        const x = Math.max(0, Math.min(1, (e.gamma + 45) / 90))
+        const y = Math.max(0, Math.min(1, 1 - (e.beta - 30) / 60))
+        addTouch(x, y)
+      }
+      onOrientationHandler = onOrientation
+
+      const tryOrientation = () => {
+        if (typeof DeviceOrientationEvent !== 'undefined' &&
+            typeof DeviceOrientationEvent.requestPermission === 'function') {
+          // iOS 13+ requires a user-gesture permission request
+          DeviceOrientationEvent.requestPermission()
+            .then(state => { if (state === 'granted') window.addEventListener('deviceorientation', onOrientation) })
+            .catch(() => {})
+        } else {
+          window.addEventListener('deviceorientation', onOrientation)
+        }
+      }
+
+      tryOrientation()
+      // Re-try on first touch in case iOS blocked the initial request
+      window.addEventListener('touchstart', tryOrientation, { once: true })
+    }
+
     window.addEventListener('mousemove', onMouse)
     window.addEventListener('touchmove', onTouch, { passive: true })
     window.addEventListener('resize', onResize)
@@ -262,6 +305,7 @@ export default function LiquidGradient() {
       window.removeEventListener('mousemove', onMouse)
       window.removeEventListener('touchmove', onTouch)
       window.removeEventListener('resize', onResize)
+      if (onOrientationHandler) window.removeEventListener('deviceorientation', onOrientationHandler)
       touchTex.dispose()
       mesh.geometry.dispose()
       mat.dispose()

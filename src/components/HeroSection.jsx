@@ -34,6 +34,27 @@ export default function HeroSection({ heroVideo, logo }) {
         }}
       />
 
+      <div className="absolute inset-0" style={{ zIndex: 2, pointerEvents: 'none' }}>
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="hero-grain">
+              <feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="3" stitchTiles="stitch" />
+              <feColorMatrix type="saturate" values="0" />
+              <feColorMatrix type="matrix" values="-1 0 0 0 1  0 -1 0 0 1  0 0 -1 0 1  0 0 0 1 0" />
+            </filter>
+            <linearGradient id="hero-grain-fade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="white" stopOpacity="0" />
+              <stop offset="55%" stopColor="white" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="white" stopOpacity="0.8" />
+            </linearGradient>
+            <mask id="hero-grain-mask">
+              <rect width="100%" height="100%" fill="url(#hero-grain-fade)" />
+            </mask>
+          </defs>
+          <rect width="100%" height="100%" filter="url(#hero-grain)" mask="url(#hero-grain-mask)" opacity="0.28" />
+        </svg>
+      </div>
+
       {logo && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -45,7 +66,7 @@ export default function HeroSection({ heroVideo, logo }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 2,
+            zIndex: 3,
             pointerEvents: 'none',
           }}
         >

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
 import { motion } from 'framer-motion'
 import AdminPhotoEditor from './AdminPhotoEditor.jsx'
+import AdminMusicEditor from './AdminMusicEditor.jsx'
 import ModuleBuilder from './ModuleBuilder.jsx'
 import { uploadFile as uploadUtil } from '../utils/upload.js'
 
@@ -13,7 +14,20 @@ const PROCESS_TABS = [
   { key: 'final', label: 'Final' },
 ]
 
-const TEMPLATES = ['video', 'photo', 'custom']
+const PROCESS_TABS_3D = [
+  { key: 'preProduction',  label: 'Pre-Production' },
+  { key: 'viewportView',   label: 'Viewport View' },
+  { key: 'renderedView',   label: 'Rendered View' },
+  { key: 'postProduction', label: 'Post-Production' },
+]
+
+const COMMON_TOOLS_3D = [
+  'Blender', 'Cinema 4D', 'Houdini', 'After Effects', 'Photoshop',
+  'ZBrush', 'Substance Painter', 'Unreal Engine', 'Maya', '3ds Max',
+  'Marvelous Designer', 'KeyShot', 'Redshift', 'Octane Render', 'V-Ray',
+]
+
+const TEMPLATES = ['video', 'photo', 'coding', 'music', '3d', 'custom']
 
 const toModules = (tabData) => {
   if (tabData?.modules) return tabData.modules
@@ -64,9 +78,11 @@ export default function AdminProjectForm() {
   const { token } = useAuth()
   const fileRef = useRef(null)
   const videoFileRef = useRef(null)
+  const finalMediaRef = useRef(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [activeProcessTab, setActiveProcessTab] = useState('preProduction')
+  const [activeProcessTab3D, setActiveProcessTab3D] = useState('preProduction')
   const [slugManual, setSlugManual] = useState(false)
 
   const [form, setForm] = useState({
@@ -81,13 +97,29 @@ export default function AdminProjectForm() {
     published: 1,
     description: '',
     photos: [],
+    modules_before_photos: [],
     video_url: '',
     video_poster: '',
+    github_url: '',
+    modules: [],
+    modules_after_repo: [],
+    music_videos: [],
+    album: { title: '', cover: '', writeup: '', tracks: [] },
     process: {
       preProduction:  { modules: [] },
       projection:     { modules: [] },
       postProduction: { modules: [] },
       final:          { modules: [] },
+    },
+    final_media_url: '',
+    final_media_poster: '',
+    tools_3d: '',
+    stats_3d: [],
+    process_3d: {
+      preProduction:  { modules: [] },
+      viewportView:   { modules: [] },
+      renderedView:   { modules: [] },
+      postProduction: { modules: [] },
     },
   })
 
@@ -110,13 +142,34 @@ export default function AdminProjectForm() {
           published: p.published ?? 1,
           description: p.description ?? '',
           photos: c.photos ?? [],
+          modules_before_photos: c.modules_before_photos ?? [],
           video_url: c.video?.url ?? '',
           video_poster: c.video?.poster ?? '',
+          github_url: c.github_url ?? '',
+          modules: c.modules ?? [],
+          modules_after_repo: c.modules_after_repo ?? [],
+          music_videos: c.music_videos ?? [],
+          album: {
+            title: c.album?.title ?? '',
+            cover: c.album?.cover ?? '',
+            writeup: c.album?.writeup ?? '',
+            tracks: c.album?.tracks ?? [],
+          },
           process: {
             preProduction:  { modules: toModules(c.process?.preProduction) },
             projection:     { modules: toModules(c.process?.projection) },
             postProduction: { modules: toModules(c.process?.postProduction) },
             final:          { modules: toModules(c.process?.final) },
+          },
+          final_media_url: c.final_media?.url ?? '',
+          final_media_poster: c.final_media?.poster ?? '',
+          tools_3d: (c.tools ?? []).join(', '),
+          stats_3d: c.stats ?? [],
+          process_3d: {
+            preProduction:  { modules: toModules(c.process_3d?.preProduction) },
+            viewportView:   { modules: toModules(c.process_3d?.viewportView) },
+            renderedView:   { modules: toModules(c.process_3d?.renderedView) },
+            postProduction: { modules: toModules(c.process_3d?.postProduction) },
           },
         })
       })
@@ -134,6 +187,12 @@ export default function AdminProjectForm() {
     const file = e.target.files?.[0]
     if (!file) return
     try { const { url } = await uploadUtil(file, token); set('thumbnail', url) } catch { setError('Upload failed') }
+  }
+
+  const handleFinalMediaUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try { const { url } = await uploadUtil(file, token); set('final_media_url', url) } catch { setError('Upload failed') }
   }
 
   const handleVideoUpload = async (e) => {
@@ -159,8 +218,22 @@ export default function AdminProjectForm() {
       description: form.description,
       content: {
         photos: form.photos,
+        modules_before_photos: form.modules_before_photos,
         video: { url: form.video_url, poster: form.video_poster || form.thumbnail },
         process: form.process,
+        github_url: form.github_url,
+        modules: form.modules,
+        modules_after_repo: form.modules_after_repo,
+        music_videos: form.music_videos,
+        album: form.album,
+        final_media: form.final_media_url ? {
+          url: form.final_media_url,
+          poster: form.final_media_poster || form.thumbnail,
+          type: /\.(mp4|webm|mov|m4v|ogv)(\?.*)?$/i.test(form.final_media_url) ? 'video' : 'image',
+        } : undefined,
+        tools: form.tools_3d ? form.tools_3d.split(',').map(t => t.trim()).filter(Boolean) : undefined,
+        stats: form.stats_3d.length ? form.stats_3d.filter(s => s.label || s.value) : undefined,
+        process_3d: form.process_3d,
       },
     }
     try {
@@ -274,26 +347,36 @@ export default function AdminProjectForm() {
               )
             )}
             <div style={{ flex: 1 }}>
-              <input style={inputStyle} value={form.thumbnail} onChange={e => set('thumbnail', e.target.value)} placeholder="Paste a URL, or upload an image or video below"
+              <input style={inputStyle} value={form.thumbnail} onChange={e => set('thumbnail', e.target.value)} placeholder="Paste a URL, or upload an image, GIF, or video (WebM/MP4) below"
                 onFocus={e => e.target.style.borderColor = '#b08fff'} onBlur={e => e.target.style.borderColor = '#2a1f45'} />
-              <input ref={fileRef} type="file" accept="image/*,video/*" style={{ display: 'none' }} onChange={handleThumbnailUpload} />
+              <input ref={fileRef} type="file" accept="image/*,video/*,.gif,.webm" style={{ display: 'none' }} onChange={handleThumbnailUpload} />
               <button type="button" onClick={() => fileRef.current?.click()}
                 style={{ marginTop: '0.5rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
-                Upload image or video
+                Upload image, GIF, or video (WebM/MP4)
               </button>
             </div>
           </div>
         </div>
 
         {form.template === 'photo' && (
-          <div style={sectionStyle}>
-            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '0.25rem' }}>Photos</h2>
-            <AdminPhotoEditor
-              photos={form.photos}
-              onChange={photos => set('photos', photos)}
-              token={token}
-            />
-          </div>
+          <>
+            <div style={sectionStyle}>
+              <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '0.25rem' }}>Modules (before photos)</h2>
+              <ModuleBuilder
+                modules={form.modules_before_photos}
+                onChange={modules => set('modules_before_photos', modules)}
+                token={token}
+              />
+            </div>
+            <div style={sectionStyle}>
+              <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '0.25rem' }}>Photos</h2>
+              <AdminPhotoEditor
+                photos={form.photos}
+                onChange={photos => set('photos', photos)}
+                token={token}
+              />
+            </div>
+          </>
         )}
 
         {form.template === 'video' && (
@@ -309,6 +392,81 @@ export default function AdminProjectForm() {
                 Upload video
               </button>
             </div>
+          </div>
+        )}
+
+        {form.template === 'coding' && (
+          <div style={sectionStyle}>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '0.25rem' }}>GitHub Repository</h2>
+            <div>
+              <label style={labelStyle}>Repo URL</label>
+              <input
+                style={inputStyle}
+                value={form.github_url}
+                onChange={e => set('github_url', e.target.value)}
+                placeholder="https://github.com/username/repo"
+                onFocus={e => e.target.style.borderColor = '#b08fff'}
+                onBlur={e => e.target.style.borderColor = '#2a1f45'}
+              />
+              <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', color: '#7a6898', marginTop: '0.4rem', lineHeight: 1.5 }}>
+                The site will pull the language breakdown, file tree, and README automatically when this is set.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {form.template === 'coding' && (
+          <div style={{ ...sectionStyle, padding: 0 }}>
+            <div className="sunken" style={{ backgroundColor: '#050308', borderRadius: '8px' }}>
+              <div style={{ padding: '0.9rem 1rem 0.5rem 1rem' }}>
+                <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.72rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#7a6898' }}>
+                  Content blocks — top
+                </div>
+                <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', color: '#352848', marginTop: '0.25rem' }}>
+                  Appears between the description and the languages bar. Good for UI screenshots, demo videos.
+                </div>
+              </div>
+              <div style={{ padding: '0.85rem 1rem 1rem 1rem' }}>
+                <ModuleBuilder
+                  modules={form.modules}
+                  onChange={modules => set('modules', modules)}
+                  token={token}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {form.template === 'coding' && (
+          <div style={{ ...sectionStyle, padding: 0 }}>
+            <div className="sunken" style={{ backgroundColor: '#050308', borderRadius: '8px' }}>
+              <div style={{ padding: '0.9rem 1rem 0.5rem 1rem' }}>
+                <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.72rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#7a6898' }}>
+                  Content blocks — between Repository and README
+                </div>
+                <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', color: '#352848', marginTop: '0.25rem' }}>
+                  Inserted after the file tree and before the README. Good for architecture diagrams, deep-dive notes.
+                </div>
+              </div>
+              <div style={{ padding: '0.85rem 1rem 1rem 1rem' }}>
+                <ModuleBuilder
+                  modules={form.modules_after_repo}
+                  onChange={modules => set('modules_after_repo', modules)}
+                  token={token}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {form.template === 'music' && (
+          <div style={sectionStyle}>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '0.25rem' }}>Music</h2>
+            <AdminMusicEditor
+              data={{ music_videos: form.music_videos, album: form.album }}
+              onChange={({ music_videos, album }) => setForm(f => ({ ...f, music_videos, album }))}
+              token={token}
+            />
           </div>
         )}
 
@@ -344,6 +502,159 @@ export default function AdminProjectForm() {
                 <ModuleBuilder
                   modules={form.process[activeProcessTab]?.modules ?? []}
                   onChange={modules => setForm(f => ({ ...f, process: { ...f.process, [activeProcessTab]: { modules } } }))}
+                  token={token}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── 3D template sections ───────────────────────────────────────── */}
+
+        {form.template === '3d' && (
+          <div style={sectionStyle}>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '0.25rem' }}>Final Piece</h2>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', color: '#7a6898', lineHeight: 1.5 }}>
+              The hero render or video that appears at the top of the project page.
+            </div>
+            <div>
+              <label style={labelStyle}>Media URL (image or video)</label>
+              <input style={inputStyle} value={form.final_media_url} onChange={e => set('final_media_url', e.target.value)} placeholder="Paste URL or upload below"
+                onFocus={e => e.target.style.borderColor = '#b08fff'} onBlur={e => e.target.style.borderColor = '#2a1f45'} />
+              <input ref={finalMediaRef} type="file" accept="image/*,video/*" style={{ display: 'none' }} onChange={handleFinalMediaUpload} />
+              <button type="button" onClick={() => finalMediaRef.current?.click()}
+                style={{ marginTop: '0.5rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
+                Upload image or video
+              </button>
+            </div>
+            {/\.(mp4|webm|mov|m4v|ogv)(\?.*)?$/i.test(form.final_media_url) && (
+              <div>
+                <label style={labelStyle}>Video poster (optional)</label>
+                <input style={inputStyle} value={form.final_media_poster} onChange={e => set('final_media_poster', e.target.value)} placeholder="Poster image URL"
+                  onFocus={e => e.target.style.borderColor = '#b08fff'} onBlur={e => e.target.style.borderColor = '#2a1f45'} />
+              </div>
+            )}
+          </div>
+        )}
+
+        {form.template === '3d' && (
+          <div style={sectionStyle}>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '0.25rem' }}>Tools Used</h2>
+            <div>
+              <label style={labelStyle}>Tools (comma separated)</label>
+              <input style={inputStyle} value={form.tools_3d} onChange={e => set('tools_3d', e.target.value)} placeholder="Blender, After Effects, Cinema 4D…"
+                onFocus={e => e.target.style.borderColor = '#b08fff'} onBlur={e => e.target.style.borderColor = '#2a1f45'} />
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+              {COMMON_TOOLS_3D.map(tool => {
+                const active = form.tools_3d.split(',').map(t => t.trim().toLowerCase()).includes(tool.toLowerCase())
+                const toggle3d = () => {
+                  const current = form.tools_3d.split(',').map(t => t.trim()).filter(Boolean)
+                  if (active) {
+                    set('tools_3d', current.filter(t => t.toLowerCase() !== tool.toLowerCase()).join(', '))
+                  } else {
+                    set('tools_3d', [...current, tool].join(', '))
+                  }
+                }
+                return (
+                  <button key={tool} type="button" onClick={toggle3d}
+                    style={{
+                      padding: '0.3rem 0.7rem',
+                      background: active ? 'rgba(176,143,255,0.12)' : 'transparent',
+                      border: `1px solid ${active ? 'rgba(176,143,255,0.4)' : '#2a1f45'}`,
+                      borderRadius: '999px',
+                      color: active ? '#b08fff' : '#7a6898',
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: '0.72rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    {tool}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {form.template === '3d' && (
+          <div style={sectionStyle}>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '0.25rem' }}>Project Details</h2>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', color: '#7a6898', lineHeight: 1.5 }}>
+              Optional stats shown beside the tools — e.g. Render Time, Poly Count, Software Version.
+            </div>
+            {form.stats_3d.map((s, i) => (
+              <div key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <input
+                  style={{ ...inputStyle, flex: 1 }}
+                  value={s.label}
+                  onChange={e => {
+                    const next = [...form.stats_3d]
+                    next[i] = { ...next[i], label: e.target.value }
+                    set('stats_3d', next)
+                  }}
+                  placeholder="Label"
+                  onFocus={e => e.target.style.borderColor = '#b08fff'} onBlur={e => e.target.style.borderColor = '#2a1f45'}
+                />
+                <input
+                  style={{ ...inputStyle, flex: 1 }}
+                  value={s.value}
+                  onChange={e => {
+                    const next = [...form.stats_3d]
+                    next[i] = { ...next[i], value: e.target.value }
+                    set('stats_3d', next)
+                  }}
+                  placeholder="Value"
+                  onFocus={e => e.target.style.borderColor = '#b08fff'} onBlur={e => e.target.style.borderColor = '#2a1f45'}
+                />
+                <button type="button"
+                  onClick={() => set('stats_3d', form.stats_3d.filter((_, j) => j !== i))}
+                  style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '4px', padding: '0.4rem 0.6rem', color: '#7a6898', cursor: 'pointer', fontSize: '0.8rem', flexShrink: 0 }}>
+                  ×
+                </button>
+              </div>
+            ))}
+            <button type="button"
+              onClick={() => set('stats_3d', [...form.stats_3d, { label: '', value: '' }])}
+              style={{ alignSelf: 'flex-start', background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
+              + Add detail
+            </button>
+          </div>
+        )}
+
+        {form.template === '3d' && (
+          <div style={{ ...sectionStyle, padding: 0, overflow: 'hidden' }}>
+            <div className="sunken" style={{ backgroundColor: '#050308', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', borderBottom: '1px solid #160f24', overflowX: 'auto', scrollbarWidth: 'none' }}>
+                {PROCESS_TABS_3D.map(tab => (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    onClick={() => setActiveProcessTab3D(tab.key)}
+                    style={{
+                      padding: '0.9rem 1.25rem',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: '0.72rem',
+                      letterSpacing: '0.05em',
+                      whiteSpace: 'nowrap',
+                      color: activeProcessTab3D === tab.key ? '#b08fff' : '#7a6898',
+                      borderBottom: activeProcessTab3D === tab.key ? '2px solid #b08fff' : '2px solid transparent',
+                      marginBottom: '-1px',
+                      transition: 'color 0.2s',
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+              <div style={{ padding: '1rem' }}>
+                <ModuleBuilder
+                  modules={form.process_3d[activeProcessTab3D]?.modules ?? []}
+                  onChange={modules => setForm(f => ({ ...f, process_3d: { ...f.process_3d, [activeProcessTab3D]: { modules } } }))}
                   token={token}
                 />
               </div>

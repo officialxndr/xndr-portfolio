@@ -1,8 +1,8 @@
-﻿import { useState } from 'react'
+﻿import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
 import { useProjects } from '../hooks/useProjects.js'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const col = { fontFamily: "'Inter', sans-serif", fontSize: '0.78rem', color: '#7a6898', padding: '0.75rem 1rem', textAlign: 'left', verticalAlign: 'middle' }
 const hcol = { ...col, fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#2a1f45', borderBottom: '1px solid #2a1f45' }
@@ -14,6 +14,35 @@ export default function AdminDashboard() {
   const navigate = useNavigate()
   const { projects, refetch } = useProjects(false)
   const [deleting, setDeleting] = useState(null)
+  const [selectedTags, setSelectedTags] = useState([])
+
+  const allTags = useMemo(() => {
+    const set = new Set()
+    projects.forEach(p => (p.tags ?? []).forEach(t => t && set.add(t)))
+    return [...set].sort()
+  }, [projects])
+
+  const filteredProjects = useMemo(() => {
+    if (selectedTags.length === 0) return projects
+    return projects.filter(p => selectedTags.every(t => (p.tags ?? []).includes(t)))
+  }, [projects, selectedTags])
+
+  const availableTags = useMemo(() => {
+    const set = new Set()
+    filteredProjects.forEach(p => (p.tags ?? []).forEach(t => t && set.add(t)))
+    return set
+  }, [filteredProjects])
+
+  const sortedTags = useMemo(() => {
+    const selected = allTags.filter(t => selectedTags.includes(t))
+    const available = allTags.filter(t => !selectedTags.includes(t) && availableTags.has(t))
+    const unavailable = allTags.filter(t => !selectedTags.includes(t) && !availableTags.has(t))
+    return [...selected, ...available, ...unavailable]
+  }, [allTags, selectedTags, availableTags])
+
+  const toggleTag = (tag) => {
+    setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])
+  }
 
   const handleLogout = () => { logout(); navigate('/admin/login') }
 
@@ -40,6 +69,12 @@ export default function AdminDashboard() {
         <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.95rem', fontWeight: 700, color: '#e2e8f0' }}>Admin</div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <button
+            onClick={() => navigate('/admin/about')}
+            style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.45rem 0.9rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}
+          >
+            About Page
+          </button>
+          <button
             onClick={() => navigate('/admin/site')}
             style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.45rem 0.9rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}
           >
@@ -58,6 +93,62 @@ export default function AdminDashboard() {
       </div>
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '2.5rem 2rem' }}>
+        {allTags.length > 0 && (
+          <div style={{ marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.5rem' }}>
+            {sortedTags.map(tag => {
+              const isSelected = selectedTags.includes(tag)
+              const isAvailable = availableTags.has(tag)
+              const isUnavailable = !isSelected && !isAvailable
+              return (
+                <button
+                  key={tag}
+                  onClick={() => !isUnavailable && toggleTag(tag)}
+                  style={{
+                    background: isSelected ? 'rgba(176,143,255,0.15)' : 'transparent',
+                    border: `1px solid ${isSelected ? 'rgba(176,143,255,0.5)' : isUnavailable ? '#1a1428' : '#2a1f45'}`,
+                    borderRadius: '999px',
+                    padding: '0.3rem 0.75rem',
+                    color: isSelected ? '#b08fff' : isUnavailable ? '#2e2545' : '#7a6898',
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: '0.7rem',
+                    letterSpacing: '0.04em',
+                    cursor: isUnavailable ? 'default' : 'pointer',
+                    transition: 'all 0.15s ease',
+                    opacity: isUnavailable ? 0.4 : 1,
+                  }}
+                >
+                  {tag}
+                </button>
+              )
+            })}
+            <AnimatePresence>
+              {selectedTags.length > 0 && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.85 }}
+                  transition={{ duration: 0.15 }}
+                  onClick={() => setSelectedTags([])}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: '0.3rem 0.5rem',
+                    color: '#3a2f55',
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: '0.7rem',
+                    cursor: 'pointer',
+                    letterSpacing: '0.04em',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#7a6898'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#3a2f55'}
+                >
+                  clear ×
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+
         {projects.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
@@ -83,7 +174,7 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {projects.map((p, i) => (
+                {filteredProjects.map((p, i) => (
                   <motion.tr
                     key={p.id}
                     initial={{ opacity: 0 }}

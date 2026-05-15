@@ -1,5 +1,6 @@
 ﻿import { useRef, useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
+import ModuleRenderer from '../modules/ModuleRenderer.jsx'
 
 const EXIF_LABELS = [
   { key: 'camera',       label: 'Camera' },
@@ -238,6 +239,7 @@ export default function PhotoTemplate({ project }) {
   const [layout, setLayout] = useState('masonry')
   const [lightboxIdx, setLightboxIdx] = useState(null)
   const photos = project.content?.photos ?? []
+  const modulesBefore = project.content?.modules_before_photos ?? []
 
   const openLightbox = (i) => setLightboxIdx(i)
   const closeLightbox = () => setLightboxIdx(null)
@@ -292,6 +294,12 @@ export default function PhotoTemplate({ project }) {
           <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.9rem', color: '#7a6898', lineHeight: 1.75, marginBottom: '3rem', maxWidth: '60ch' }}>
             {project.description}
           </p>
+        )}
+
+        {modulesBefore.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginBottom: '3rem' }}>
+            {modulesBefore.map(mod => <ModuleRenderer key={mod.id} module={mod} />)}
+          </div>
         )}
 
         {photos.length === 0 ? (

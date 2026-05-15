@@ -1,4 +1,5 @@
-﻿import { useState } from 'react'
+﻿import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { MODULE_DEFS } from '../modules/moduleTypes.jsx'
 import ModuleRenderer from '../modules/ModuleRenderer.jsx'
 
@@ -6,6 +7,8 @@ import TextEditor       from '../modules/text/TextEditor.jsx'
 import VideoEditor      from '../modules/video/VideoEditor.jsx'
 import StoryboardEditor from '../modules/storyboard/StoryboardEditor.jsx'
 import ImageEditor      from '../modules/image/ImageEditor.jsx'
+import CarouselEditor   from '../modules/carousel/CarouselEditor.jsx'
+import ModelEditor      from '../modules/model/ModelEditor.jsx'
 
 const newId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
 
@@ -63,6 +66,8 @@ function ModuleCard({ module: mod, index, total, onUpdate, onRemove, onMove, tok
             {mod.type === 'video'      && <VideoEditor      data={mod.data} onChange={onUpdate} token={token} />}
             {mod.type === 'storyboard' && <StoryboardEditor data={mod.data} onChange={onUpdate} token={token} />}
             {mod.type === 'image'      && <ImageEditor      data={mod.data} onChange={onUpdate} token={token} />}
+            {mod.type === 'carousel'   && <CarouselEditor   data={mod.data} onChange={onUpdate} token={token} />}
+            {mod.type === 'model'      && <ModelEditor      data={mod.data} onChange={onUpdate} token={token} />}
           </>
         ) : (
           /* Preview — renders exactly as it appears on the public page */
@@ -72,6 +77,8 @@ function ModuleCard({ module: mod, index, total, onUpdate, onRemove, onMove, tok
                 : mod.type === 'video' ? mod.data?.url
                 : mod.type === 'storyboard' ? mod.data?.frames?.length
                 : mod.type === 'image' ? mod.data?.url
+                : mod.type === 'carousel' ? mod.data?.slides?.length
+                : mod.type === 'model' ? mod.data?.url
                 : false
               return hasContent
                 ? <ModuleRenderer module={mod} />
@@ -86,6 +93,37 @@ function ModuleCard({ module: mod, index, total, onUpdate, onRemove, onMove, tok
 
 export default function ModuleBuilder({ modules, onChange, token }) {
   const [picking, setPicking] = useState(false)
+  const [pickerRect, setPickerRect] = useState(null)
+  const buttonRef = useRef(null)
+
+  const calcRect = (r) => {
+    const gap = 6
+    const spaceBelow = window.innerHeight - r.bottom - gap
+    const spaceAbove = r.top - gap
+    const preferBelow = spaceBelow >= spaceAbove
+    return preferBelow
+      ? { top: r.bottom + gap, left: r.left, width: r.width, maxH: Math.max(spaceBelow - 8, 120) }
+      : { bottom: window.innerHeight - r.top + gap, left: r.left, width: r.width, maxH: Math.max(spaceAbove - 8, 120) }
+  }
+
+  const openPicker = () => {
+    if (buttonRef.current) setPickerRect(calcRect(buttonRef.current.getBoundingClientRect()))
+    setPicking(true)
+  }
+
+  useEffect(() => {
+    if (!picking) return
+    const reposition = () => {
+      if (!buttonRef.current) return
+      setPickerRect(calcRect(buttonRef.current.getBoundingClientRect()))
+    }
+    window.addEventListener('scroll', reposition, true)
+    window.addEventListener('resize', reposition)
+    return () => {
+      window.removeEventListener('scroll', reposition, true)
+      window.removeEventListener('resize', reposition)
+    }
+  }, [picking])
 
   const add = (type) => {
     const def = MODULE_DEFS.find(d => d.type === type)
@@ -119,10 +157,11 @@ export default function ModuleBuilder({ modules, onChange, token }) {
       ))}
 
       {/* Add block */}
-      <div style={{ position: 'relative' }}>
+      <div>
         <button
+          ref={buttonRef}
           type="button"
-          onClick={() => setPicking(p => !p)}
+          onClick={() => picking ? setPicking(false) : openPicker()}
           style={{
             display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center',
             width: '100%', padding: '0.55rem 1rem',
@@ -140,13 +179,19 @@ export default function ModuleBuilder({ modules, onChange, token }) {
           Add block
         </button>
 
-        {picking && (
+        {picking && pickerRect && createPortal(
           <>
-            <div onClick={() => setPicking(false)} style={{ position: 'fixed', inset: 0, zIndex: 40 }} />
+            <div onClick={() => setPicking(false)} style={{ position: 'fixed', inset: 0, zIndex: 1000 }} />
             <div style={{
-              position: 'absolute', bottom: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 50,
+              position: 'fixed',
+              ...(pickerRect.top != null ? { top: pickerRect.top } : { bottom: pickerRect.bottom }),
+              left: pickerRect.left,
+              width: pickerRect.width,
+              maxHeight: pickerRect.maxH,
+              overflowY: 'auto',
+              zIndex: 1001,
               backgroundColor: '#0a1420', border: '1px solid #2a1f45', borderRadius: '8px',
-              overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
             }}>
               {MODULE_DEFS.map((def, i) => (
                 <button key={def.type} type="button" onClick={() => add(def.type)}
@@ -162,7 +207,8 @@ export default function ModuleBuilder({ modules, onChange, token }) {
                 </button>
               ))}
             </div>
-          </>
+          </>,
+          document.body
         )}
       </div>
     </div>

@@ -1,0 +1,20 @@
+services:
+  portfolio:
+    image: ghcr.io/officialxndr/portfolio:latest
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      # Generate with: openssl rand -hex 32
+      JWT_SECRET: "change-me-to-a-long-random-secret"
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: "change-me"
+    volumes:
+      - portfolio_data:/app/data
+      - portfolio_uploads:/app/public/uploads
+    restart: unless-stopped
+
+volumes:
+  portfolio_data:
+  portfolio_uploads:

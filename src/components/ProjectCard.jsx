@@ -6,6 +6,10 @@ function isVideo(url) {
   return /\.(mp4|webm|mov|m4v|ogv)(\?.*)?$/i.test(url ?? '')
 }
 
+function isGif(url) {
+  return /\.gif(\?.*)?$/i.test(url ?? '')
+}
+
 export default function ProjectCard({ project }) {
   const navigate = useNavigate()
   const thumb = project.thumbnail ?? ''
@@ -38,8 +42,8 @@ export default function ProjectCard({ project }) {
           borderRadius: '8px',
           overflow: 'hidden',
           background: 'rgba(176, 143, 255, 0.07)',
-          backdropFilter: 'blur(28px)',
-          WebkitBackdropFilter: 'blur(28px)',
+          backdropFilter: thumb ? 'none' : 'blur(28px)',
+          WebkitBackdropFilter: thumb ? 'none' : 'blur(28px)',
           border: '1px solid rgba(176, 143, 255, 0.18)',
           boxShadow: '0 4px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)',
         }}

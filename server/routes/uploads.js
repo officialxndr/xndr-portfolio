@@ -22,7 +22,17 @@ const upload = multer({
   storage,
   limits: { fileSize: 500 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    cb(null, file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/'))
+    const { mimetype, originalname } = file
+    const ext = originalname.split('.').pop().toLowerCase()
+    const allowed3D = ['glb', 'gltf', 'stl', 'fbx'].includes(ext)
+    const allowedMime = mimetype.startsWith('image/') ||
+      mimetype.startsWith('video/') ||
+      mimetype.startsWith('audio/') ||
+      mimetype === 'model/gltf-binary' ||
+      mimetype === 'model/gltf+json' ||
+      mimetype === 'application/octet-stream' ||
+      mimetype === 'application/x-tgif'
+    cb(null, allowedMime || allowed3D)
   },
 })
 

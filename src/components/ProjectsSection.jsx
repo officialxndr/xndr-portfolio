@@ -1,23 +1,61 @@
-﻿import { useState, useMemo } from 'react'
+﻿import { useState, useMemo, useEffect, useRef } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { useProjects } from '../hooks/useProjects.js'
 import FilterChips from './FilterChips.jsx'
 import ProjectCard from './ProjectCard.jsx'
 
+// Resets to true on every real page load (module reload), stays false through SPA navigation
+let _isFirstMount = true
+
 export default function ProjectsSection() {
   const { projects, loading } = useProjects(true)
-  const [activeTag, setActiveTag] = useState('All')
+  const wasFirstMount = useRef(true)
+
+  const [selectedTags, setSelectedTags] = useState(() => {
+    const isFirst = _isFirstMount
+    wasFirstMount.current = isFirst
+    _isFirstMount = false
+    if (isFirst) return []
+    try {
+      return JSON.parse(sessionStorage.getItem('projectFilters') || '[]')
+    } catch {
+      return []
+    }
+  })
+
+  useEffect(() => {
+    sessionStorage.setItem('projectFilters', JSON.stringify(selectedTags))
+  }, [selectedTags])
+
+  // On back-navigation, snap scroller back to the projects section
+  useEffect(() => {
+    if (!wasFirstMount.current) {
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('snap-to-section', { detail: 1 }))
+      }, 0)
+    }
+  }, [])
 
   const allTags = useMemo(() => {
     const set = new Set()
-    projects.forEach(p => (p.tags ?? []).forEach(t => set.add(t)))
+    projects.forEach(p => (p.tags ?? []).forEach(t => t && set.add(t)))
     return [...set].sort()
   }, [projects])
 
   const filtered = useMemo(() => {
-    if (activeTag === 'All') return projects
-    return projects.filter(p => (p.tags ?? []).includes(activeTag))
-  }, [projects, activeTag])
+    if (selectedTags.length === 0) return projects
+    return projects.filter(p => selectedTags.every(t => (p.tags ?? []).includes(t)))
+  }, [projects, selectedTags])
+
+  const availableTags = useMemo(() => {
+    const set = new Set()
+    filtered.forEach(p => (p.tags ?? []).forEach(t => t && set.add(t)))
+    return set
+  }, [filtered])
+
+  const toggleTag = (tag) => {
+    setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])
+  }
 
   return (
     <section
@@ -38,7 +76,13 @@ export default function ProjectsSection() {
           >
             Work
           </div>
-          <FilterChips tags={allTags} active={activeTag} onChange={setActiveTag} />
+          <FilterChips
+            tags={allTags}
+            selected={selectedTags}
+            availableTags={availableTags}
+            onToggle={toggleTag}
+            onClear={() => setSelectedTags([])}
+          />
         </div>
 
         {loading ? (

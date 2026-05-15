@@ -86,8 +86,10 @@ function VideoPlayer({ src, poster }) {
             : <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M3 2l10 5-10 5V2z"/></svg>
           }
         </button>
-        <div onClick={seek} style={{ flex: 1, height: '3px', backgroundColor: '#2a1f45', borderRadius: '2px', cursor: 'pointer', position: 'relative' }}>
-          <div style={{ width: `${progress * 100}%`, height: '100%', backgroundColor: '#b08fff', borderRadius: '2px', transition: 'width 0.1s' }} />
+        <div onClick={seek} style={{ flex: 1, height: '6px', backgroundColor: '#2a1f45', borderRadius: '3px', cursor: 'pointer', position: 'relative' }}>
+          <div style={{ width: `${progress * 100}%`, height: '100%', backgroundColor: '#b08fff', borderRadius: '3px', transition: 'width 0.1s', position: 'relative' }}>
+            <div style={{ position: 'absolute', right: '-5px', top: '50%', transform: 'translateY(-50%)', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#b08fff', boxShadow: '0 0 6px rgba(176,143,255,0.5)', pointerEvents: 'none' }} />
+          </div>
         </div>
         <button onClick={() => setMuted(m => !m)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7a6898', display: 'flex', padding: '2px' }}>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
