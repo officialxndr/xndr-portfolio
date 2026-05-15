@@ -8,7 +8,21 @@ export default function HeroSection({ heroVideo, logo, morphTexts, morphSpeed = 
   useEffect(() => {
     const v = videoRef.current
     if (!v) return
-    v.play().catch(() => {})
+
+    let handler = null
+
+    v.play().catch(() => {
+      handler = () => v.play().catch(() => {})
+      document.addEventListener('touchstart', handler, { once: true })
+      document.addEventListener('click', handler, { once: true })
+    })
+
+    return () => {
+      if (handler) {
+        document.removeEventListener('touchstart', handler)
+        document.removeEventListener('click', handler)
+      }
+    }
   }, [heroVideo])
 
   return (
