@@ -39,6 +39,8 @@ const defaults = [
   ['tagline', 'Creative Portfolio'],
   ['hero_video', ''],
   ['logo', ''],
+  ['hero_morph_texts', '[]'],
+  ['hero_morph_speed', '1'],
 ]
 
 const upsertConfig = db.prepare(

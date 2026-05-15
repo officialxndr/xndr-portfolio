@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
+import TextMorph from './TextMorph.jsx'
 
-export default function HeroSection({ heroVideo, logo }) {
+export default function HeroSection({ heroVideo, logo, morphTexts, morphSpeed = 1 }) {
   const videoRef = useRef(null)
 
   useEffect(() => {
@@ -55,7 +56,7 @@ export default function HeroSection({ heroVideo, logo }) {
         </svg>
       </div>
 
-      {logo && (
+      {(logo || morphTexts?.length > 0) && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -64,23 +65,28 @@ export default function HeroSection({ heroVideo, logo }) {
             position: 'absolute',
             inset: 0,
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
+            gap: '1.75rem',
             zIndex: 3,
             pointerEvents: 'none',
           }}
         >
-          <img
-            src={logo}
-            alt="Logo"
-            style={{
-              maxWidth: 'min(340px, 55vw)',
-              maxHeight: '180px',
-              width: 'auto',
-              height: 'auto',
-              objectFit: 'contain',
-            }}
-          />
+          {logo && (
+            <img
+              src={logo}
+              alt="Logo"
+              style={{
+                maxWidth: 'min(340px, 55vw)',
+                maxHeight: '180px',
+                width: 'auto',
+                height: 'auto',
+                objectFit: 'contain',
+              }}
+            />
+          )}
+          {morphTexts?.length > 0 && <TextMorph texts={morphTexts} morphTime={morphSpeed} />}
         </motion.div>
       )}
 

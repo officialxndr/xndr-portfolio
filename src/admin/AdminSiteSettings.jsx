@@ -32,10 +32,15 @@ export default function AdminSiteSettings() {
   const logoRef = useRef(null)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [form, setForm] = useState({ site_name: '', tagline: '', hero_video: '', logo: '' })
+  const [form, setForm] = useState({ site_name: '', tagline: '', hero_video: '', logo: '', hero_morph_speed: '1' })
+  const [morphItems, setMorphItems] = useState([])
+  const [morphInput, setMorphInput] = useState('')
 
   useEffect(() => {
-    fetch('/api/config').then(r => r.json()).then(d => setForm(f => ({ ...f, ...d })))
+    fetch('/api/config').then(r => r.json()).then(d => {
+      setForm(f => ({ ...f, ...d }))
+      try { setMorphItems(JSON.parse(d.hero_morph_texts || '[]')) } catch { setMorphItems([]) }
+    })
   }, [])
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }))
@@ -64,7 +69,8 @@ export default function AdminSiteSettings() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSaving(true)
-    await fetch('/api/config', { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(form) })
+    const payload = { ...form, hero_morph_texts: JSON.stringify(morphItems) }
+    await fetch('/api/config', { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) })
     setSaving(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
@@ -133,6 +139,65 @@ export default function AdminSiteSettings() {
             <button type="button" onClick={() => videoRef.current?.click()}
               style={{ marginTop: '0.5rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
               Upload video
+            </button>
+          </div>
+        </div>
+
+        <div style={{ backgroundColor: '#100d1a', border: '1px solid #2a1f45', borderRadius: '8px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0' }}>Hero Text Morph</h2>
+          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.68rem', color: '#4a3a6a' }}>
+            Text items that cycle below the logo in the hero. Add at least 2 to enable the effect.
+          </div>
+          <div>
+            <label style={labelStyle}>Morph speed</label>
+            <div style={{ display: 'flex', gap: '0.4rem' }}>
+              {[{ label: 'Slow', value: '2' }, { label: 'Normal', value: '1' }, { label: 'Fast', value: '0.5' }].map(opt => {
+                const active = form.hero_morph_speed === opt.value
+                return (
+                  <button key={opt.value} type="button" onClick={() => set('hero_morph_speed', opt.value)}
+                    style={{ flex: 1, padding: '0.4rem 0', border: `1px solid ${active ? '#b08fff' : '#2a1f45'}`, borderRadius: '5px', background: active ? 'rgba(176,143,255,0.12)' : 'none', color: active ? '#b08fff' : '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.15s' }}>
+                    {opt.label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+          {morphItems.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              {morphItems.map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: '#0d0a16', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.65rem' }}>
+                  <span style={{ flex: 1, fontFamily: "'Inter', sans-serif", fontSize: '0.82rem', color: '#e2e8f0' }}>{item}</span>
+                  <button type="button" onClick={() => setMorphItems(items => items.filter((_, j) => j !== i))}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4a3a6a', fontSize: '0.8rem', lineHeight: 1, padding: '0 0.15rem' }}>
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <input
+              style={{ ...inputStyle, flex: 1 }}
+              value={morphInput}
+              onChange={e => setMorphInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  const val = morphInput.trim()
+                  if (val) { setMorphItems(items => [...items, val]); setMorphInput('') }
+                }
+              }}
+              placeholder="Add a text item..."
+              onFocus={e => e.target.style.borderColor = '#b08fff'}
+              onBlur={e => e.target.style.borderColor = '#2a1f45'}
+            />
+            <button type="button"
+              onClick={() => {
+                const val = morphInput.trim()
+                if (val) { setMorphItems(items => [...items, val]); setMorphInput('') }
+              }}
+              style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              Add
             </button>
           </div>
         </div>
