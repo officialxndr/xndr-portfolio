@@ -1,6 +1,7 @@
 services:
   portfolio:
     image: ghcr.io/officialxndr/xndr-portfolio:latest
+    pull_policy: always
     ports:
       - "3001:3001"
     environment:
@@ -11,13 +12,9 @@ services:
       ADMIN_USERNAME: admin
       ADMIN_PASSWORD: "change-me"
     volumes:
-      - portfolio_data:/app/data
-      - portfolio_uploads:/app/public/uploads
+      - /mnt/tank/docker_apps/xndr-portfolio/data:/app/data
+      - /mnt/tank/docker_apps/xndr-portfolio/uploads:/app/public/uploads
     restart: unless-stopped
-
-volumes:
-  portfolio_data:
-  portfolio_uploads:
 
 x-truenas:
   portals:
