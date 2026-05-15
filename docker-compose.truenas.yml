@@ -1,6 +1,6 @@
 services:
   portfolio:
-    image: ghcr.io/officialxndr/portfolio:latest
+    image: ghcr.io/officialxndr/xndr-portfolio:latest
     ports:
       - "3001:3001"
     environment:
@@ -18,3 +18,11 @@ services:
 volumes:
   portfolio_data:
   portfolio_uploads:
+
+x-truenas:
+  portals:
+    - name: Web UI
+      scheme: http
+      host: $node_ip
+      port: 3001
+      path: /
