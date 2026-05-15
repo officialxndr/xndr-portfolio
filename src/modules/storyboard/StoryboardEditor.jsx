@@ -44,9 +44,9 @@ export default function StoryboardEditor({ data, onChange, token }) {
               <button
                 type="button"
                 onClick={() => removeFrame(i)}
-                style={{ position: 'absolute', top: 3, right: 3, background: 'rgba(7,10,16,0.85)', border: 'none', borderRadius: '3px', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#7a6898', fontSize: '9px' }}
+                style={{ position: 'absolute', top: 3, right: 3, background: 'rgba(7,10,16,0.85)', border: 'none', borderRadius: '3px', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#a090bc', fontSize: '9px' }}
               >✕</button>
-              <div style={{ position: 'absolute', bottom: 3, left: 5, fontFamily: "'Syne', sans-serif", fontSize: '0.55rem', color: '#7a6898' }}>
+              <div style={{ position: 'absolute', bottom: 3, left: 5, fontFamily: "'Syne', sans-serif", fontSize: '0.55rem', color: '#a090bc' }}>
                 {String(i + 1).padStart(2, '0')}
               </div>
             </div>

@@ -1,20 +1,35 @@
-﻿import { useState, useRef, useEffect } from 'react'
+﻿import { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { MODULE_DEFS } from '../modules/moduleTypes.jsx'
 import ModuleRenderer from '../modules/ModuleRenderer.jsx'
 
-import TextEditor       from '../modules/text/TextEditor.jsx'
-import VideoEditor      from '../modules/video/VideoEditor.jsx'
-import StoryboardEditor from '../modules/storyboard/StoryboardEditor.jsx'
-import ImageEditor      from '../modules/image/ImageEditor.jsx'
-import CarouselEditor   from '../modules/carousel/CarouselEditor.jsx'
-import ModelEditor      from '../modules/model/ModelEditor.jsx'
+import TextEditor        from '../modules/text/TextEditor.jsx'
+import VideoEditor       from '../modules/video/VideoEditor.jsx'
+import StoryboardEditor  from '../modules/storyboard/StoryboardEditor.jsx'
+import ImageEditor       from '../modules/image/ImageEditor.jsx'
+import CarouselEditor    from '../modules/carousel/CarouselEditor.jsx'
+import ModelEditor       from '../modules/model/ModelEditor.jsx'
+import BeforeAfterEditor from '../modules/before-after/BeforeAfterEditor.jsx'
+import StatsEditor       from '../modules/stats/StatsEditor.jsx'
+import EmbedEditor       from '../modules/embed/EmbedEditor.jsx'
 
 const newId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
 
-function ModuleCard({ module: mod, index, total, onUpdate, onRemove, onMove, token }) {
+const GripIcon = () => (
+  <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor">
+    <circle cx="3" cy="2.5" r="1.2"/><circle cx="7" cy="2.5" r="1.2"/>
+    <circle cx="3" cy="7"   r="1.2"/><circle cx="7" cy="7"   r="1.2"/>
+    <circle cx="3" cy="11.5" r="1.2"/><circle cx="7" cy="11.5" r="1.2"/>
+  </svg>
+)
+
+function ModuleCard({ module: mod, index, total, onUpdate, onRemove, onMove, token, onDragStart, onDragEnd }) {
   const [view, setView] = useState('edit')
   const def = MODULE_DEFS.find(d => d.type === mod.type)
+  const cardRef = useRef(null)
+
+  const enableDrag  = () => cardRef.current?.setAttribute('draggable', 'true')
+  const disableDrag = () => cardRef.current?.removeAttribute('draggable')
 
   const tabBtn = (label, active) => ({
     background: 'none',
@@ -23,19 +38,36 @@ function ModuleCard({ module: mod, index, total, onUpdate, onRemove, onMove, tok
     fontFamily: "'Inter', sans-serif",
     fontSize: '0.65rem',
     letterSpacing: '0.06em',
-    color: active ? '#b08fff' : '#352848',
+    color: active ? '#b08fff' : '#a090bc',
     borderBottom: active ? '1px solid #b08fff' : '1px solid transparent',
     paddingBottom: '1px',
     marginBottom: '-1px',
   })
 
   return (
-    <div style={{ backgroundColor: '#08101a', border: '1px solid #2a1f45', borderRadius: '7px', overflow: 'hidden', marginBottom: '0.6rem' }}>
+    <div
+      ref={cardRef}
+      onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; onDragStart() }}
+      onDragEnd={() => { disableDrag(); onDragEnd() }}
+      style={{ backgroundColor: '#08101a', border: '1px solid #2a1f45', borderRadius: '7px', overflow: 'hidden', marginBottom: '0.6rem' }}
+    >
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 0.85rem', borderBottom: '1px solid #160f24', backgroundColor: '#0a1420' }}>
-        <span style={{ color: '#7a6898', display: 'flex', alignItems: 'center', flexShrink: 0 }}>{def?.icon}</span>
-        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.68rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#7a6898', flex: 1 }}>
+        {/* Drag grip */}
+        <div
+          onMouseDown={enableDrag}
+          onMouseUp={disableDrag}
+          title="Drag to reorder"
+          style={{ cursor: 'grab', color: '#a090bc', display: 'flex', alignItems: 'center', flexShrink: 0, padding: '0 2px', marginLeft: '-4px' }}
+          onMouseEnter={e => e.currentTarget.style.color = '#a090bc'}
+          onMouseLeave={e => e.currentTarget.style.color = '#a090bc'}
+        >
+          <GripIcon />
+        </div>
+
+        <span style={{ color: '#a090bc', display: 'flex', alignItems: 'center', flexShrink: 0 }}>{def?.icon}</span>
+        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.68rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#a090bc', flex: 1 }}>
           {def?.label}
         </span>
 
@@ -45,11 +77,6 @@ function ModuleCard({ module: mod, index, total, onUpdate, onRemove, onMove, tok
           <button type="button" onClick={() => setView('preview')} style={tabBtn('Preview', view === 'preview')}>Preview</button>
         </div>
 
-        {/* Move / remove */}
-        <button type="button" onClick={() => onMove(-1)} disabled={index === 0}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#352848', padding: '2px 4px', fontSize: '11px', opacity: index === 0 ? 0.3 : 1 }}>↑</button>
-        <button type="button" onClick={() => onMove(1)} disabled={index === total - 1}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#352848', padding: '2px 4px', fontSize: '11px', opacity: index === total - 1 ? 0.3 : 1 }}>↓</button>
         <button type="button" onClick={onRemove}
           style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2a1520', padding: '2px 5px', fontSize: '11px', marginLeft: '2px' }}
           onMouseEnter={e => e.currentTarget.style.color = '#ff6b6b'}
@@ -62,27 +89,33 @@ function ModuleCard({ module: mod, index, total, onUpdate, onRemove, onMove, tok
       <div style={{ padding: '0.85rem' }}>
         {view === 'edit' ? (
           <>
-            {mod.type === 'text'       && <TextEditor       data={mod.data} onChange={onUpdate} />}
-            {mod.type === 'video'      && <VideoEditor      data={mod.data} onChange={onUpdate} token={token} />}
-            {mod.type === 'storyboard' && <StoryboardEditor data={mod.data} onChange={onUpdate} token={token} />}
-            {mod.type === 'image'      && <ImageEditor      data={mod.data} onChange={onUpdate} token={token} />}
-            {mod.type === 'carousel'   && <CarouselEditor   data={mod.data} onChange={onUpdate} token={token} />}
-            {mod.type === 'model'      && <ModelEditor      data={mod.data} onChange={onUpdate} token={token} />}
+            {mod.type === 'text'         && <TextEditor        data={mod.data} onChange={onUpdate} />}
+            {mod.type === 'video'        && <VideoEditor       data={mod.data} onChange={onUpdate} token={token} />}
+            {mod.type === 'storyboard'   && <StoryboardEditor  data={mod.data} onChange={onUpdate} token={token} />}
+            {mod.type === 'image'        && <ImageEditor       data={mod.data} onChange={onUpdate} token={token} />}
+            {mod.type === 'carousel'     && <CarouselEditor    data={mod.data} onChange={onUpdate} token={token} />}
+            {mod.type === 'model'        && <ModelEditor       data={mod.data} onChange={onUpdate} token={token} />}
+            {mod.type === 'before-after' && <BeforeAfterEditor data={mod.data} onChange={onUpdate} token={token} />}
+            {mod.type === 'stats'        && <StatsEditor       data={mod.data} onChange={onUpdate} />}
+            {mod.type === 'embed'        && <EmbedEditor       data={mod.data} onChange={onUpdate} />}
           </>
         ) : (
           /* Preview — renders exactly as it appears on the public page */
           <div style={{ backgroundColor: '#050308', borderRadius: '5px', border: '1px solid #160f24', padding: '1.25rem', minHeight: '60px' }}>
             {(() => {
-              const hasContent = mod.type === 'text' ? mod.data?.text
-                : mod.type === 'video' ? mod.data?.url
-                : mod.type === 'storyboard' ? mod.data?.frames?.length
-                : mod.type === 'image' ? mod.data?.url
-                : mod.type === 'carousel' ? mod.data?.slides?.length
-                : mod.type === 'model' ? mod.data?.url
-                : false
+              const hasContent =
+                mod.type === 'text'         ? mod.data?.text :
+                mod.type === 'video'        ? mod.data?.url :
+                mod.type === 'storyboard'   ? mod.data?.frames?.length :
+                mod.type === 'image'        ? mod.data?.url :
+                mod.type === 'carousel'     ? mod.data?.slides?.length :
+                mod.type === 'model'        ? mod.data?.url :
+                mod.type === 'before-after' ? (mod.data?.before?.url || mod.data?.after?.url) :
+                mod.type === 'stats'        ? mod.data?.stats?.some(s => s.label || s.value) :
+                mod.type === 'embed'        ? mod.data?.url : false
               return hasContent
                 ? <ModuleRenderer module={mod} />
-                : <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', color: '#352848', textAlign: 'center', padding: '1rem 0' }}>Add content in Edit mode to see a preview</div>
+                : <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', color: '#a090bc', textAlign: 'center', padding: '1rem 0' }}>Add content in Edit mode to see a preview</div>
             })()}
           </div>
         )}
@@ -95,6 +128,18 @@ export default function ModuleBuilder({ modules, onChange, token }) {
   const [picking, setPicking] = useState(false)
   const [pickerRect, setPickerRect] = useState(null)
   const buttonRef = useRef(null)
+  const [dragFrom, setDragFrom] = useState(null)
+  const [dragOver, setDragOver] = useState(null)
+
+  const handleDrop = useCallback((toIdx) => {
+    if (dragFrom === null || dragFrom === toIdx) { setDragFrom(null); setDragOver(null); return }
+    const arr = [...modules]
+    const [item] = arr.splice(dragFrom, 1)
+    arr.splice(toIdx, 0, item)
+    onChange(arr)
+    setDragFrom(null)
+    setDragOver(null)
+  }, [dragFrom, modules, onChange])
 
   const calcRect = (r) => {
     const gap = 6
@@ -144,16 +189,30 @@ export default function ModuleBuilder({ modules, onChange, token }) {
   return (
     <div>
       {modules.map((mod, i) => (
-        <ModuleCard
+        <div
           key={mod.id}
-          module={mod}
-          index={i}
-          total={modules.length}
-          onUpdate={data => update(mod.id, data)}
-          onRemove={() => remove(mod.id)}
-          onMove={dir => move(i, dir)}
-          token={token}
-        />
+          onDragOver={(e) => { e.preventDefault(); setDragOver(i) }}
+          onDragLeave={() => setDragOver(null)}
+          onDrop={() => handleDrop(i)}
+          style={{
+            opacity: dragFrom === i ? 0.35 : 1,
+            outline: dragOver === i && dragFrom !== i ? '2px solid rgba(176,143,255,0.45)' : '2px solid transparent',
+            borderRadius: '8px',
+            transition: 'opacity 0.15s, outline 0.1s',
+          }}
+        >
+          <ModuleCard
+            module={mod}
+            index={i}
+            total={modules.length}
+            onUpdate={data => update(mod.id, data)}
+            onRemove={() => remove(mod.id)}
+            onMove={dir => move(i, dir)}
+            token={token}
+            onDragStart={() => setDragFrom(i)}
+            onDragEnd={() => { setDragFrom(null); setDragOver(null) }}
+          />
+        </div>
       ))}
 
       {/* Add block */}
@@ -168,12 +227,12 @@ export default function ModuleBuilder({ modules, onChange, token }) {
             background: 'transparent',
             border: '1px dashed #2a1f45',
             borderRadius: '6px',
-            color: '#7a6898',
+            color: '#a090bc',
             fontFamily: "'Inter', sans-serif", fontSize: '0.75rem',
             cursor: 'pointer', transition: 'all 0.15s',
           }}
           onMouseEnter={e => { e.currentTarget.style.borderColor = '#b08fff'; e.currentTarget.style.color = '#b08fff' }}
-          onMouseLeave={e => { if (!picking) { e.currentTarget.style.borderColor = '#2a1f45'; e.currentTarget.style.color = '#7a6898' } }}
+          onMouseLeave={e => { if (!picking) { e.currentTarget.style.borderColor = '#2a1f45'; e.currentTarget.style.color = '#a090bc' } }}
         >
           <svg width="11" height="11" viewBox="0 0 11 11" fill="currentColor"><rect x="4.5" y="0" width="2" height="11"/><rect x="0" y="4.5" width="11" height="2"/></svg>
           Add block
@@ -199,10 +258,10 @@ export default function ModuleBuilder({ modules, onChange, token }) {
                   onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(176,143,255,0.05)'}
                   onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
-                  <span style={{ color: '#7a6898', display: 'flex', flexShrink: 0 }}>{def.icon}</span>
+                  <span style={{ color: '#a090bc', display: 'flex', flexShrink: 0 }}>{def.icon}</span>
                   <div>
                     <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.78rem', fontWeight: 500, color: '#e2e8f0' }}>{def.label}</div>
-                    <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.68rem', color: '#7a6898', marginTop: '0.1rem' }}>{def.description}</div>
+                    <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.68rem', color: '#a090bc', marginTop: '0.1rem' }}>{def.description}</div>
                   </div>
                 </button>
               ))}

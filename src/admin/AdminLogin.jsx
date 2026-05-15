@@ -51,7 +51,7 @@ export default function AdminLogin() {
           <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '1.4rem', fontWeight: 700, color: '#e2e8f0', marginBottom: '0.4rem' }}>
             Admin
           </div>
-          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.78rem', color: '#7a6898' }}>
+          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.78rem', color: '#a090bc' }}>
             Sign in to manage your portfolio
           </div>
         </div>

@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth.js'
 import { useProjects } from '../hooks/useProjects.js'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const col = { fontFamily: "'Inter', sans-serif", fontSize: '0.78rem', color: '#7a6898', padding: '0.75rem 1rem', textAlign: 'left', verticalAlign: 'middle' }
+const col = { fontFamily: "'Inter', sans-serif", fontSize: '0.78rem', color: '#a090bc', padding: '0.75rem 1rem', textAlign: 'left', verticalAlign: 'middle' }
 const hcol = { ...col, fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#2a1f45', borderBottom: '1px solid #2a1f45' }
 const isVideo = (url) => /\.(mp4|webm|mov|m4v|ogv)(\?.*)?$/i.test(url ?? '')
 const thumbStyle = { width: '56px', height: '32px', objectFit: 'cover', borderRadius: '3px', border: '1px solid #2a1f45' }
@@ -70,13 +70,13 @@ export default function AdminDashboard() {
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <button
             onClick={() => navigate('/admin/about')}
-            style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.45rem 0.9rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}
+            style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.45rem 0.9rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}
           >
             About Page
           </button>
           <button
             onClick={() => navigate('/admin/site')}
-            style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.45rem 0.9rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}
+            style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.45rem 0.9rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}
           >
             Site Settings
           </button>
@@ -108,7 +108,7 @@ export default function AdminDashboard() {
                     border: `1px solid ${isSelected ? 'rgba(176,143,255,0.5)' : isUnavailable ? '#1a1428' : '#2a1f45'}`,
                     borderRadius: '999px',
                     padding: '0.3rem 0.75rem',
-                    color: isSelected ? '#b08fff' : isUnavailable ? '#2e2545' : '#7a6898',
+                    color: isSelected ? '#b08fff' : isUnavailable ? '#2e2545' : '#a090bc',
                     fontFamily: "'Inter', sans-serif",
                     fontSize: '0.7rem',
                     letterSpacing: '0.04em',
@@ -139,7 +139,7 @@ export default function AdminDashboard() {
                     cursor: 'pointer',
                     letterSpacing: '0.04em',
                   }}
-                  onMouseEnter={e => e.currentTarget.style.color = '#7a6898'}
+                  onMouseEnter={e => e.currentTarget.style.color = '#a090bc'}
                   onMouseLeave={e => e.currentTarget.style.color = '#3a2f55'}
                 >
                   clear ×
@@ -201,7 +201,7 @@ export default function AdminDashboard() {
                           border: `1px solid ${p.published ? 'rgba(176,143,255,0.35)' : '#2a1f45'}`,
                           borderRadius: '999px',
                           padding: '0.2rem 0.65rem',
-                          color: p.published ? '#b08fff' : '#7a6898',
+                          color: p.published ? '#b08fff' : '#a090bc',
                           fontFamily: "'Inter', sans-serif",
                           fontSize: '0.68rem',
                           cursor: 'pointer',
@@ -214,9 +214,9 @@ export default function AdminDashboard() {
                     <td style={{ ...col, whiteSpace: 'nowrap' }}>
                       <button
                         onClick={() => navigate(`/admin/projects/${p.id}/edit`)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', marginRight: '0.75rem' }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', marginRight: '0.75rem' }}
                         onMouseEnter={e => e.target.style.color = '#e2e8f0'}
-                        onMouseLeave={e => e.target.style.color = '#7a6898'}
+                        onMouseLeave={e => e.target.style.color = '#a090bc'}
                       >
                         Edit
                       </button>

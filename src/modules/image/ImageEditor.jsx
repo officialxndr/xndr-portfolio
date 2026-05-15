@@ -40,13 +40,13 @@ export default function ImageEditor({ data, onChange, token }) {
       <button
         type="button"
         onClick={() => fileRef.current?.click()}
-        style={{ alignSelf: 'flex-start', background: 'none', border: '1px solid #2a1f45', borderRadius: '4px', padding: '0.35rem 0.85rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.72rem', cursor: 'pointer' }}
+        style={{ alignSelf: 'flex-start', background: 'none', border: '1px solid #2a1f45', borderRadius: '4px', padding: '0.35rem 0.85rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.72rem', cursor: 'pointer' }}
       >
         Upload image
       </button>
 
       <div>
-        <label style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#7a6898', display: 'block', marginBottom: '0.3rem' }}>Caption</label>
+        <label style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#a090bc', display: 'block', marginBottom: '0.3rem' }}>Caption</label>
         <input
           style={inputStyle}
           value={data?.caption ?? ''}

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import AdminPhotoEditor from './AdminPhotoEditor.jsx'
 import AdminMusicEditor from './AdminMusicEditor.jsx'
 import ModuleBuilder from './ModuleBuilder.jsx'
+import PageLayoutBuilder from './PageLayoutBuilder.jsx'
 import { uploadFile as uploadUtil } from '../utils/upload.js'
 
 const PROCESS_TABS = [
@@ -28,6 +29,64 @@ const COMMON_TOOLS_3D = [
 ]
 
 const TEMPLATES = ['video', 'photo', 'coding', 'music', '3d', 'custom']
+
+// ── Native section type definitions per template ──────────────────────────────
+
+const NI = {
+  video:       { type: 'native:video',       label: 'Video Player',    icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M2 3l10 4-10 4V3z"/></svg> },
+  description: { type: 'native:description', label: 'Description',     icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M2 4h10M2 7h8M2 10h6" strokeLinecap="round"/></svg> },
+  process:     { type: 'native:process',     label: 'Process Tabs',    icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3"><rect x="1" y="2" width="12" height="10" rx="1.5"/><path d="M1 6h12"/><path d="M5 2v4"/></svg> },
+  photos:      { type: 'native:photos',      label: 'Photo Gallery',   icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3"><rect x="1" y="2" width="12" height="10" rx="1.5"/><circle cx="4.5" cy="5.5" r="1.2" fill="currentColor" stroke="none"/><path d="M1 10l3-3 2.5 2.5 2-1.5L13 11"/></svg> },
+  musicVideos: { type: 'native:music-videos',label: 'Music Videos',    icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M2 3l10 4-10 4V3z"/></svg> },
+  album:       { type: 'native:album',       label: 'Album & Tracks',  icon: <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M14 2v8.5a3 3 0 11-2-2.83V4.5L7 5.5V11a3 3 0 11-2-2.83V3L14 2z"/></svg> },
+  github:      { type: 'native:github',      label: 'GitHub Repo',     icon: <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 005.47 7.59c.4.07.55-.17.55-.38v-1.49c-2.22.48-2.7-.94-2.7-.94-.36-.93-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.81.06 1.23.83 1.23.83.72 1.22 1.88.87 2.34.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.13 0 0 .67-.21 2.2.82a7.6 7.6 0 014 0c1.53-1.03 2.2-.82 2.2-.82.44 1.11.16 1.93.08 2.13.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.19c0 .21.15.46.55.38A8 8 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> },
+  finalMedia:  { type: 'native:final-media', label: 'Final Piece',     icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3"><rect x="1" y="2" width="12" height="10" rx="1.5"/><path d="M1 9l3-3 2 2 2-2 3 3"/></svg> },
+  tools:       { type: 'native:tools',       label: 'Tools & Stats',   icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3"><circle cx="5" cy="5" r="3"/><path d="M7.5 7.5l4 4" strokeLinecap="round"/></svg> },
+  process3d:   { type: 'native:process-3d',  label: 'Process Tabs',    icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3"><rect x="1" y="2" width="12" height="10" rx="1.5"/><path d="M1 6h12"/><path d="M5 2v4"/></svg> },
+}
+
+const NATIVE_TYPES = {
+  video:  [NI.video, NI.description, NI.process],
+  photo:  [NI.description, NI.photos],
+  music:  [NI.description, NI.musicVideos, NI.album],
+  coding: [NI.description, NI.github],
+  '3d':   [NI.description, NI.finalMedia, NI.tools, NI.process3d],
+}
+
+function defaultPageSections(template, c = {}) {
+  const mid = id => `default-${id}`
+  switch (template) {
+    case 'video': return [
+      { id: mid('video'), type: 'native:video' },
+      { id: mid('desc'),  type: 'native:description' },
+      ...(c.video_modules ?? []),
+      { id: mid('proc'),  type: 'native:process' },
+    ]
+    case 'photo': return [
+      { id: mid('desc'),   type: 'native:description' },
+      ...(c.modules_before_photos ?? []),
+      { id: mid('photos'), type: 'native:photos' },
+    ]
+    case 'music': return [
+      { id: mid('desc'),   type: 'native:description' },
+      { id: mid('videos'), type: 'native:music-videos' },
+      { id: mid('album'),  type: 'native:album' },
+    ]
+    case 'coding': return [
+      { id: mid('desc'),   type: 'native:description' },
+      ...(c.modules ?? []),
+      { id: mid('github'), type: 'native:github' },
+      ...(c.modules_after_repo ?? []),
+    ]
+    case '3d': return [
+      { id: mid('desc'),    type: 'native:description' },
+      { id: mid('media'),   type: 'native:final-media' },
+      { id: mid('tools'),   type: 'native:tools' },
+      { id: mid('proc3d'),  type: 'native:process-3d' },
+    ]
+    default: return []
+  }
+}
 
 const toModules = (tabData) => {
   if (tabData?.modules) return tabData.modules
@@ -56,7 +115,7 @@ const labelStyle = {
   fontSize: '0.7rem',
   letterSpacing: '0.1em',
   textTransform: 'uppercase',
-  color: '#7a6898',
+  color: '#a090bc',
   display: 'block',
   marginBottom: '0.4rem',
 }
@@ -69,6 +128,31 @@ const sectionStyle = {
   display: 'flex',
   flexDirection: 'column',
   gap: '1rem',
+}
+
+function LayoutBuilderSection({ label, hint, sections, onChange, nativeTypes, token }) {
+  return (
+    <div style={{ backgroundColor: '#050308', border: '1px solid #2a1f45', borderRadius: '8px', overflow: 'hidden' }}>
+      <div style={{ padding: '0.9rem 1rem 0.5rem 1rem' }}>
+        <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.72rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#a090bc' }}>
+          {label}
+        </div>
+        {hint && (
+          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', color: '#a090bc', marginTop: '0.25rem' }}>
+            {hint}
+          </div>
+        )}
+      </div>
+      <div style={{ padding: '0.85rem 1rem 1rem 1rem' }}>
+        <PageLayoutBuilder
+          sections={sections}
+          onChange={onChange}
+          nativeTypes={nativeTypes}
+          token={token}
+        />
+      </div>
+    </div>
+  )
 }
 
 export default function AdminProjectForm() {
@@ -103,6 +187,8 @@ export default function AdminProjectForm() {
     github_url: '',
     modules: [],
     modules_after_repo: [],
+    video_modules: [],
+    page_sections: defaultPageSections('video'),
     music_videos: [],
     album: { title: '', cover: '', writeup: '', tracks: [] },
     process: {
@@ -148,6 +234,8 @@ export default function AdminProjectForm() {
           github_url: c.github_url ?? '',
           modules: c.modules ?? [],
           modules_after_repo: c.modules_after_repo ?? [],
+          video_modules: c.video_modules ?? [],
+          page_sections: c.page_sections?.length ? c.page_sections : defaultPageSections(p.template, c),
           music_videos: c.music_videos ?? [],
           album: {
             title: c.album?.title ?? '',
@@ -176,6 +264,14 @@ export default function AdminProjectForm() {
   }, [id, isEdit])
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }))
+
+  const handleTemplateChange = (tmpl) => {
+    setForm(f => ({
+      ...f,
+      template: tmpl,
+      page_sections: isEdit ? f.page_sections : defaultPageSections(tmpl),
+    }))
+  }
 
   const handleTitleChange = (val) => {
     set('title', val)
@@ -220,6 +316,7 @@ export default function AdminProjectForm() {
         photos: form.photos,
         modules_before_photos: form.modules_before_photos,
         video: { url: form.video_url, poster: form.video_poster || form.thumbnail },
+        page_sections: form.page_sections.length ? form.page_sections : undefined,
         process: form.process,
         github_url: form.github_url,
         modules: form.modules,
@@ -252,7 +349,7 @@ export default function AdminProjectForm() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#060509' }}>
       <div style={{ borderBottom: '1px solid #2a1f45', padding: '1rem 2rem', display: 'flex', alignItems: 'center', gap: '1rem', backgroundColor: 'rgba(7,10,16,0.9)', position: 'sticky', top: 0, zIndex: 10, backdropFilter: 'blur(12px)' }}>
-        <button onClick={() => navigate('/admin')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7a6898', display: 'flex', alignItems: 'center', gap: '0.35rem', fontFamily: "'Inter', sans-serif", fontSize: '0.78rem' }}>
+        <button onClick={() => navigate('/admin')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a090bc', display: 'flex', alignItems: 'center', gap: '0.35rem', fontFamily: "'Inter', sans-serif", fontSize: '0.78rem' }}>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 11L5 7l4-4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
           Back
         </button>
@@ -310,7 +407,7 @@ export default function AdminProjectForm() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
             <div>
               <label style={labelStyle}>Template</label>
-              <select style={{ ...inputStyle, cursor: 'pointer' }} value={form.template} onChange={e => set('template', e.target.value)}>
+              <select style={{ ...inputStyle, cursor: 'pointer' }} value={form.template} onChange={e => handleTemplateChange(e.target.value)}>
                 {TEMPLATES.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
@@ -351,7 +448,7 @@ export default function AdminProjectForm() {
                 onFocus={e => e.target.style.borderColor = '#b08fff'} onBlur={e => e.target.style.borderColor = '#2a1f45'} />
               <input ref={fileRef} type="file" accept="image/*,video/*,.gif,.webm" style={{ display: 'none' }} onChange={handleThumbnailUpload} />
               <button type="button" onClick={() => fileRef.current?.click()}
-                style={{ marginTop: '0.5rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
+                style={{ marginTop: '0.5rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
                 Upload image, GIF, or video (WebM/MP4)
               </button>
             </div>
@@ -360,14 +457,14 @@ export default function AdminProjectForm() {
 
         {form.template === 'photo' && (
           <>
-            <div style={sectionStyle}>
-              <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '0.25rem' }}>Modules (before photos)</h2>
-              <ModuleBuilder
-                modules={form.modules_before_photos}
-                onChange={modules => set('modules_before_photos', modules)}
-                token={token}
-              />
-            </div>
+            <LayoutBuilderSection
+              label="Page Layout"
+              hint="Drag to reorder sections. Add content blocks anywhere between the description and gallery."
+              sections={form.page_sections}
+              onChange={s => set('page_sections', s)}
+              nativeTypes={NATIVE_TYPES.photo}
+              token={token}
+            />
             <div style={sectionStyle}>
               <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '0.25rem' }}>Photos</h2>
               <AdminPhotoEditor
@@ -388,7 +485,7 @@ export default function AdminProjectForm() {
                 onFocus={e => e.target.style.borderColor = '#b08fff'} onBlur={e => e.target.style.borderColor = '#2a1f45'} />
               <input ref={videoFileRef} type="file" accept="video/*" style={{ display: 'none' }} onChange={handleVideoUpload} />
               <button type="button" onClick={() => videoFileRef.current?.click()}
-                style={{ marginTop: '0.5rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
+                style={{ marginTop: '0.5rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
                 Upload video
               </button>
             </div>
@@ -408,7 +505,7 @@ export default function AdminProjectForm() {
                 onFocus={e => e.target.style.borderColor = '#b08fff'}
                 onBlur={e => e.target.style.borderColor = '#2a1f45'}
               />
-              <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', color: '#7a6898', marginTop: '0.4rem', lineHeight: 1.5 }}>
+              <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', color: '#a090bc', marginTop: '0.4rem', lineHeight: 1.5 }}>
                 The site will pull the language breakdown, file tree, and README automatically when this is set.
               </div>
             </div>
@@ -416,58 +513,46 @@ export default function AdminProjectForm() {
         )}
 
         {form.template === 'coding' && (
-          <div style={{ ...sectionStyle, padding: 0 }}>
-            <div className="sunken" style={{ backgroundColor: '#050308', borderRadius: '8px' }}>
-              <div style={{ padding: '0.9rem 1rem 0.5rem 1rem' }}>
-                <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.72rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#7a6898' }}>
-                  Content blocks — top
-                </div>
-                <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', color: '#352848', marginTop: '0.25rem' }}>
-                  Appears between the description and the languages bar. Good for UI screenshots, demo videos.
-                </div>
-              </div>
-              <div style={{ padding: '0.85rem 1rem 1rem 1rem' }}>
-                <ModuleBuilder
-                  modules={form.modules}
-                  onChange={modules => set('modules', modules)}
-                  token={token}
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {form.template === 'coding' && (
-          <div style={{ ...sectionStyle, padding: 0 }}>
-            <div className="sunken" style={{ backgroundColor: '#050308', borderRadius: '8px' }}>
-              <div style={{ padding: '0.9rem 1rem 0.5rem 1rem' }}>
-                <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.72rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#7a6898' }}>
-                  Content blocks — between Repository and README
-                </div>
-                <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', color: '#352848', marginTop: '0.25rem' }}>
-                  Inserted after the file tree and before the README. Good for architecture diagrams, deep-dive notes.
-                </div>
-              </div>
-              <div style={{ padding: '0.85rem 1rem 1rem 1rem' }}>
-                <ModuleBuilder
-                  modules={form.modules_after_repo}
-                  onChange={modules => set('modules_after_repo', modules)}
-                  token={token}
-                />
-              </div>
-            </div>
-          </div>
+          <LayoutBuilderSection
+            label="Page Layout"
+            hint="Drag to reorder sections. Content blocks can be placed before or after the GitHub repo section."
+            sections={form.page_sections}
+            onChange={s => set('page_sections', s)}
+            nativeTypes={NATIVE_TYPES.coding}
+            token={token}
+          />
         )}
 
         {form.template === 'music' && (
-          <div style={sectionStyle}>
-            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '0.25rem' }}>Music</h2>
-            <AdminMusicEditor
-              data={{ music_videos: form.music_videos, album: form.album }}
-              onChange={({ music_videos, album }) => setForm(f => ({ ...f, music_videos, album }))}
+          <>
+            <LayoutBuilderSection
+              label="Page Layout"
+              hint="Drag to reorder sections. Add content blocks anywhere between description, music videos, and album."
+              sections={form.page_sections}
+              onChange={s => set('page_sections', s)}
+              nativeTypes={NATIVE_TYPES.music}
               token={token}
             />
-          </div>
+            <div style={sectionStyle}>
+              <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '0.25rem' }}>Music</h2>
+              <AdminMusicEditor
+                data={{ music_videos: form.music_videos, album: form.album }}
+                onChange={({ music_videos, album }) => setForm(f => ({ ...f, music_videos, album }))}
+                token={token}
+              />
+            </div>
+          </>
+        )}
+
+        {form.template === 'video' && (
+          <LayoutBuilderSection
+            label="Page Layout"
+            hint="Drag blocks to reorder the page. Add content blocks anywhere between structure elements."
+            sections={form.page_sections}
+            onChange={s => set('page_sections', s)}
+            nativeTypes={NATIVE_TYPES.video}
+            token={token}
+          />
         )}
 
         {form.template === 'video' && (
@@ -488,7 +573,7 @@ export default function AdminProjectForm() {
                       fontSize: '0.72rem',
                       letterSpacing: '0.05em',
                       whiteSpace: 'nowrap',
-                      color: activeProcessTab === tab.key ? '#b08fff' : '#7a6898',
+                      color: activeProcessTab === tab.key ? '#b08fff' : '#a090bc',
                       borderBottom: activeProcessTab === tab.key ? '2px solid #b08fff' : '2px solid transparent',
                       marginBottom: '-1px',
                       transition: 'color 0.2s',
@@ -514,7 +599,7 @@ export default function AdminProjectForm() {
         {form.template === '3d' && (
           <div style={sectionStyle}>
             <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '0.25rem' }}>Final Piece</h2>
-            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', color: '#7a6898', lineHeight: 1.5 }}>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', color: '#a090bc', lineHeight: 1.5 }}>
               The hero render or video that appears at the top of the project page.
             </div>
             <div>
@@ -523,7 +608,7 @@ export default function AdminProjectForm() {
                 onFocus={e => e.target.style.borderColor = '#b08fff'} onBlur={e => e.target.style.borderColor = '#2a1f45'} />
               <input ref={finalMediaRef} type="file" accept="image/*,video/*" style={{ display: 'none' }} onChange={handleFinalMediaUpload} />
               <button type="button" onClick={() => finalMediaRef.current?.click()}
-                style={{ marginTop: '0.5rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
+                style={{ marginTop: '0.5rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
                 Upload image or video
               </button>
             </div>
@@ -563,7 +648,7 @@ export default function AdminProjectForm() {
                       background: active ? 'rgba(176,143,255,0.12)' : 'transparent',
                       border: `1px solid ${active ? 'rgba(176,143,255,0.4)' : '#2a1f45'}`,
                       borderRadius: '999px',
-                      color: active ? '#b08fff' : '#7a6898',
+                      color: active ? '#b08fff' : '#a090bc',
                       fontFamily: "'Inter', sans-serif",
                       fontSize: '0.72rem',
                       cursor: 'pointer',
@@ -581,7 +666,7 @@ export default function AdminProjectForm() {
         {form.template === '3d' && (
           <div style={sectionStyle}>
             <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '0.25rem' }}>Project Details</h2>
-            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', color: '#7a6898', lineHeight: 1.5 }}>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', color: '#a090bc', lineHeight: 1.5 }}>
               Optional stats shown beside the tools — e.g. Render Time, Poly Count, Software Version.
             </div>
             {form.stats_3d.map((s, i) => (
@@ -610,17 +695,28 @@ export default function AdminProjectForm() {
                 />
                 <button type="button"
                   onClick={() => set('stats_3d', form.stats_3d.filter((_, j) => j !== i))}
-                  style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '4px', padding: '0.4rem 0.6rem', color: '#7a6898', cursor: 'pointer', fontSize: '0.8rem', flexShrink: 0 }}>
+                  style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '4px', padding: '0.4rem 0.6rem', color: '#a090bc', cursor: 'pointer', fontSize: '0.8rem', flexShrink: 0 }}>
                   ×
                 </button>
               </div>
             ))}
             <button type="button"
               onClick={() => set('stats_3d', [...form.stats_3d, { label: '', value: '' }])}
-              style={{ alignSelf: 'flex-start', background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
+              style={{ alignSelf: 'flex-start', background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
               + Add detail
             </button>
           </div>
+        )}
+
+        {form.template === '3d' && (
+          <LayoutBuilderSection
+            label="Page Layout"
+            hint="Drag to reorder sections. Add content blocks anywhere between the description, final piece, tools, and process tabs."
+            sections={form.page_sections}
+            onChange={s => set('page_sections', s)}
+            nativeTypes={NATIVE_TYPES['3d']}
+            token={token}
+          />
         )}
 
         {form.template === '3d' && (
@@ -641,7 +737,7 @@ export default function AdminProjectForm() {
                       fontSize: '0.72rem',
                       letterSpacing: '0.05em',
                       whiteSpace: 'nowrap',
-                      color: activeProcessTab3D === tab.key ? '#b08fff' : '#7a6898',
+                      color: activeProcessTab3D === tab.key ? '#b08fff' : '#a090bc',
                       borderBottom: activeProcessTab3D === tab.key ? '2px solid #b08fff' : '2px solid transparent',
                       marginBottom: '-1px',
                       transition: 'color 0.2s',
@@ -670,7 +766,7 @@ export default function AdminProjectForm() {
 
         <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
           <button type="button" onClick={() => navigate('/admin')}
-            style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '6px', padding: '0.65rem 1.25rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.82rem', cursor: 'pointer' }}>
+            style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '6px', padding: '0.65rem 1.25rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.82rem', cursor: 'pointer' }}>
             Cancel
           </button>
           <button type="submit" disabled={saving}

@@ -29,7 +29,7 @@ const labelStyle = {
   fontSize: '0.62rem',
   letterSpacing: '0.12em',
   textTransform: 'uppercase',
-  color: '#7a6898',
+  color: '#a090bc',
   display: 'block',
   marginBottom: '0.32rem',
 }
@@ -49,7 +49,7 @@ const sectionTitleStyle = {
   fontSize: '0.72rem',
   letterSpacing: '0.12em',
   textTransform: 'uppercase',
-  color: '#7a6898',
+  color: '#a090bc',
   margin: 0,
 }
 
@@ -59,7 +59,7 @@ const addBtnStyle = {
   background: 'transparent',
   border: '1px dashed #2a1f45',
   borderRadius: '6px',
-  color: '#7a6898',
+  color: '#a090bc',
   fontFamily: "'Inter', sans-serif", fontSize: '0.75rem',
   cursor: 'pointer', transition: 'all 0.15s',
 }
@@ -93,7 +93,7 @@ function VideoItem({ video, index, total, token, onChange, onRemove, onMove }) {
   return (
     <div style={cardStyle}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <span style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.65rem', color: '#7a6898', letterSpacing: '0.1em' }}>
+        <span style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.65rem', color: '#a090bc', letterSpacing: '0.1em' }}>
           {String(index + 1).padStart(2, '0')}
         </span>
         <input
@@ -105,9 +105,9 @@ function VideoItem({ video, index, total, token, onChange, onRemove, onMove }) {
           onBlur={e => e.target.style.borderColor = '#2a1f45'}
         />
         <button type="button" onClick={() => onMove(-1)} disabled={index === 0}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#352848', padding: '2px 4px', fontSize: '11px', opacity: index === 0 ? 0.3 : 1 }}>↑</button>
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a090bc', padding: '2px 4px', fontSize: '11px', opacity: index === 0 ? 0.3 : 1 }}>↑</button>
         <button type="button" onClick={() => onMove(1)} disabled={index === total - 1}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#352848', padding: '2px 4px', fontSize: '11px', opacity: index === total - 1 ? 0.3 : 1 }}>↓</button>
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a090bc', padding: '2px 4px', fontSize: '11px', opacity: index === total - 1 ? 0.3 : 1 }}>↓</button>
         <button type="button" onClick={onRemove}
           style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2a1520', padding: '2px 5px', fontSize: '12px' }}
           onMouseEnter={e => e.currentTarget.style.color = '#ff6b6b'}
@@ -126,7 +126,7 @@ function VideoItem({ video, index, total, token, onChange, onRemove, onMove }) {
         />
         <input ref={videoRef} type="file" accept="video/*" style={{ display: 'none' }} onChange={uploadVideo} />
         <button type="button" onClick={() => videoRef.current?.click()}
-          style={{ marginTop: '0.4rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '4px', padding: '0.32rem 0.75rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.72rem', cursor: 'pointer' }}>
+          style={{ marginTop: '0.4rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '4px', padding: '0.32rem 0.75rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.72rem', cursor: 'pointer' }}>
           Upload video
         </button>
       </div>
@@ -148,7 +148,7 @@ function VideoItem({ video, index, total, token, onChange, onRemove, onMove }) {
             />
             <input ref={posterRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={uploadPoster} />
             <button type="button" onClick={() => posterRef.current?.click()}
-              style={{ marginTop: '0.4rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '4px', padding: '0.32rem 0.75rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.72rem', cursor: 'pointer' }}>
+              style={{ marginTop: '0.4rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '4px', padding: '0.32rem 0.75rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.72rem', cursor: 'pointer' }}>
               Upload poster
             </button>
           </div>
@@ -186,7 +186,7 @@ function VideosEditor({ videos, onChange, token }) {
       ))}
       <button type="button" onClick={add} style={addBtnStyle}
         onMouseEnter={e => { e.currentTarget.style.borderColor = '#b08fff'; e.currentTarget.style.color = '#b08fff' }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a1f45'; e.currentTarget.style.color = '#7a6898' }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a1f45'; e.currentTarget.style.color = '#a090bc' }}
       >
         + Add music video
       </button>
@@ -226,13 +226,13 @@ function TrackItem({ track, index, total, token, onChange, onRemove, onMove }) {
     <div style={cardStyle}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
         <button type="button" onClick={() => setExpanded(e => !e)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7a6898', padding: '2px', display: 'flex' }}>
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a090bc', padding: '2px', display: 'flex' }}>
           <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"
             style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }}>
             <path d="M3 2l4 3-4 3V2z"/>
           </svg>
         </button>
-        <span style={{ fontFamily: "'JetBrains Mono', 'Fira Code', monospace", fontSize: '0.72rem', color: '#7a6898' }}>
+        <span style={{ fontFamily: "'JetBrains Mono', 'Fira Code', monospace", fontSize: '0.72rem', color: '#a090bc' }}>
           {String(index + 1).padStart(2, '0')}
         </span>
         <input
@@ -252,9 +252,9 @@ function TrackItem({ track, index, total, token, onChange, onRemove, onMove }) {
           onBlur={e => e.target.style.borderColor = '#2a1f45'}
         />
         <button type="button" onClick={() => onMove(-1)} disabled={index === 0}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#352848', padding: '2px 4px', fontSize: '11px', opacity: index === 0 ? 0.3 : 1 }}>↑</button>
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a090bc', padding: '2px 4px', fontSize: '11px', opacity: index === 0 ? 0.3 : 1 }}>↑</button>
         <button type="button" onClick={() => onMove(1)} disabled={index === total - 1}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#352848', padding: '2px 4px', fontSize: '11px', opacity: index === total - 1 ? 0.3 : 1 }}>↓</button>
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a090bc', padding: '2px 4px', fontSize: '11px', opacity: index === total - 1 ? 0.3 : 1 }}>↓</button>
         <button type="button" onClick={onRemove}
           style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2a1520', padding: '2px 5px', fontSize: '12px' }}
           onMouseEnter={e => e.currentTarget.style.color = '#ff6b6b'}
@@ -275,7 +275,7 @@ function TrackItem({ track, index, total, token, onChange, onRemove, onMove }) {
             />
             <input ref={audioRef} type="file" accept="audio/*" style={{ display: 'none' }} onChange={uploadAudio} />
             <button type="button" onClick={() => audioRef.current?.click()} disabled={uploading}
-              style={{ marginTop: '0.4rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '4px', padding: '0.32rem 0.75rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.72rem', cursor: uploading ? 'wait' : 'pointer' }}>
+              style={{ marginTop: '0.4rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '4px', padding: '0.32rem 0.75rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.72rem', cursor: uploading ? 'wait' : 'pointer' }}>
               {uploading ? 'Uploading…' : 'Upload audio'}
             </button>
             {track.audio_url && (
@@ -302,12 +302,26 @@ function TrackItem({ track, index, total, token, onChange, onRemove, onMove }) {
 
 // ─── Main editor ─────────────────────────────────────────────────────────────
 
+const AUDIO_EXTS = /\.(mp3|wav|flac|aac|ogg|m4a|aiff|wma|opus)$/i
+
+function getAudioDuration(url) {
+  return new Promise((resolve) => {
+    const a = new Audio(url)
+    const done = () => resolve(formatTime(a.duration) || '')
+    a.addEventListener('loadedmetadata', done)
+    a.addEventListener('error', () => resolve(''))
+    setTimeout(() => resolve(''), 6000)
+  })
+}
+
 export default function AdminMusicEditor({ data, onChange, token }) {
   const musicVideos = data.music_videos ?? []
   const album = data.album ?? { title: '', cover: '', writeup: '', tracks: [] }
   const tracks = album.tracks ?? []
 
   const coverRef = useRef(null)
+  const folderInputRef = useRef(null)
+  const [folderProgress, setFolderProgress] = useState(null)
 
   const setVideos = (music_videos) => onChange({ ...data, music_videos })
   const setAlbum = (partial) => onChange({ ...data, album: { ...album, ...partial } })
@@ -321,6 +335,33 @@ export default function AdminMusicEditor({ data, onChange, token }) {
       setAlbum({ cover: url })
     } catch {}
     e.target.value = ''
+  }
+
+  const handleFolderUpload = async (e) => {
+    const files = Array.from(e.target.files ?? [])
+      .filter(f => f.type.startsWith('audio/') || AUDIO_EXTS.test(f.name))
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
+    e.target.value = ''
+    if (!files.length) return
+
+    setFolderProgress({ done: 0, total: files.length })
+    const newTracks = []
+    for (let i = 0; i < files.length; i++) {
+      try {
+        const { url } = await uploadFile(files[i], token)
+        const duration = await getAudioDuration(url)
+        newTracks.push({
+          id: newId(),
+          title: files[i].name.replace(/^\d+[\s._-]+/, '').replace(/\.[^.]+$/, ''),
+          audio_url: url,
+          duration,
+          writeup: '',
+        })
+      } catch {}
+      setFolderProgress({ done: i + 1, total: files.length })
+    }
+    setTracks([...tracks, ...newTracks])
+    setFolderProgress(null)
   }
 
   const addTrack = () => setTracks([...tracks, { id: newId(), title: '', audio_url: '', duration: '', writeup: '' }])
@@ -340,7 +381,7 @@ export default function AdminMusicEditor({ data, onChange, token }) {
       {/* Music videos */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
         <h3 style={sectionTitleStyle}>Music videos</h3>
-        <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', color: '#352848', marginTop: '-0.25rem' }}>
+        <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', color: '#a090bc', marginTop: '-0.25rem' }}>
           Add one or many — each renders as its own player above the album.
         </div>
         <VideosEditor videos={musicVideos} onChange={setVideos} token={token} />
@@ -360,7 +401,7 @@ export default function AdminMusicEditor({ data, onChange, token }) {
               overflow: 'hidden',
               background: 'linear-gradient(135deg, #100d1a 0%, #050308 100%)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#352848',
+              color: '#a090bc',
             }}>
               {album.cover
                 ? <img src={album.cover} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -369,7 +410,7 @@ export default function AdminMusicEditor({ data, onChange, token }) {
             </div>
             <input ref={coverRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={uploadCover} />
             <button type="button" onClick={() => coverRef.current?.click()}
-              style={{ marginTop: '0.45rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '4px', padding: '0.32rem 0.6rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', cursor: 'pointer', width: '110px' }}>
+              style={{ marginTop: '0.45rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '4px', padding: '0.32rem 0.6rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', cursor: 'pointer', width: '110px' }}>
               Upload cover
             </button>
           </div>
@@ -430,12 +471,34 @@ export default function AdminMusicEditor({ data, onChange, token }) {
             />
           ))}
         </div>
-        <button type="button" onClick={addTrack} style={addBtnStyle}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = '#b08fff'; e.currentTarget.style.color = '#b08fff' }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a1f45'; e.currentTarget.style.color = '#7a6898' }}
-        >
-          + Add track
-        </button>
+        <input
+          ref={(el) => { folderInputRef.current = el; if (el) el.setAttribute('webkitdirectory', '') }}
+          type="file"
+          accept="audio/*"
+          multiple
+          style={{ display: 'none' }}
+          onChange={handleFolderUpload}
+        />
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button type="button" onClick={addTrack} style={{ ...addBtnStyle, flex: 1 }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#b08fff'; e.currentTarget.style.color = '#b08fff' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a1f45'; e.currentTarget.style.color = '#a090bc' }}
+          >
+            + Add track
+          </button>
+          <button
+            type="button"
+            onClick={() => folderInputRef.current?.click()}
+            disabled={!!folderProgress}
+            style={{ ...addBtnStyle, flex: 1, opacity: folderProgress ? 0.6 : 1, cursor: folderProgress ? 'wait' : 'pointer' }}
+            onMouseEnter={e => { if (!folderProgress) { e.currentTarget.style.borderColor = '#b08fff'; e.currentTarget.style.color = '#b08fff' } }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a1f45'; e.currentTarget.style.color = '#a090bc' }}
+          >
+            {folderProgress
+              ? `Uploading ${folderProgress.done}/${folderProgress.total}…`
+              : '+ Upload folder'}
+          </button>
+        </div>
       </div>
     </div>
   )

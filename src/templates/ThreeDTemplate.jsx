@@ -211,6 +211,15 @@ export default function ThreeDTemplate({ project }) {
   const availableTabs = PROCESS_TABS.filter(hasContent)
   const activeTabData = process[activeTab] ?? {}
 
+  const sections = content.page_sections?.length
+    ? content.page_sections
+    : [
+        { id: 'dd',   type: 'native:description' },
+        { id: 'dm',   type: 'native:final-media' },
+        { id: 'dt',   type: 'native:tools' },
+        { id: 'dp3d', type: 'native:process-3d' },
+      ]
+
   const isVideo = finalMedia.type === 'video' ||
     /\.(mp4|webm|mov|m4v|ogv)(\?.*)?$/i.test(finalMedia.url ?? '')
 
@@ -243,167 +252,85 @@ export default function ThreeDTemplate({ project }) {
           {project.title}
         </h1>
 
-        {/* Final piece */}
-        {finalMedia.url && (
-          <div style={{ marginBottom: '3rem' }}>
-            {isVideo ? (
-              <VideoPlayer src={finalMedia.url} poster={finalMedia.poster || project.thumbnail} />
-            ) : (
-              <div style={{
-                borderRadius: '8px',
-                overflow: 'hidden',
-                border: '1px solid #2a1f45',
-                backgroundColor: '#0a0612',
-                lineHeight: 0,
-              }}>
-                <img
-                  src={finalMedia.url}
-                  alt={project.title}
-                  style={{ width: '100%', display: 'block' }}
-                />
+        {sections.filter(s => s.visible !== false).map(section => {
+          if (section.type === 'native:final-media') {
+            return finalMedia.url ? (
+              <div key={section.id} style={{ marginBottom: '3rem' }}>
+                {isVideo ? (
+                  <VideoPlayer src={finalMedia.url} poster={finalMedia.poster || project.thumbnail} />
+                ) : (
+                  <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid #2a1f45', backgroundColor: '#0a0612', lineHeight: 0 }}>
+                    <img src={finalMedia.url} alt={project.title} style={{ width: '100%', display: 'block' }} />
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        )}
-
-        {/* Description */}
-        {project.description && (
-          <p style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: '0.9rem',
-            color: '#7a6898',
-            lineHeight: 1.75,
-            marginBottom: '3rem',
-            maxWidth: '65ch',
-          }}>
-            {project.description}
-          </p>
-        )}
-
-        {/* Tools + Stats */}
-        {(tools.length > 0 || stats.length > 0) && (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: tools.length > 0 && stats.length > 0 ? '1fr 1fr' : '1fr',
-            gap: '2.5rem',
-            marginBottom: '3.5rem',
-            alignItems: 'start',
-          }}>
-            {tools.length > 0 && (
-              <section>
-                <SectionHeader>Tools Used</SectionHeader>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-                  gap: '0.85rem',
-                }}>
-                  {tools.map((tool, i) => <ToolBadge key={i} name={tool} />)}
-                </div>
-              </section>
-            )}
-
-            {stats.length > 0 && (
-              <section>
-                <SectionHeader>Details</SectionHeader>
-                <div>
-                  {stats.map((s, i) => (
-                    <div key={i} style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'baseline',
-                      padding: '0.6rem 0',
-                      borderBottom: '1px solid #100d1a',
-                    }}>
-                      <span style={{
-                        fontFamily: "'Inter', sans-serif",
-                        fontSize: '0.68rem',
-                        letterSpacing: '0.1em',
-                        textTransform: 'uppercase',
-                        color: '#7a6898',
-                      }}>
-                        {s.label}
-                      </span>
-                      <span style={{
-                        fontFamily: "'Syne', sans-serif",
-                        fontSize: '0.82rem',
-                        color: '#e2e8f0',
-                      }}>
-                        {s.value}
-                      </span>
+            ) : null
+          }
+          if (section.type === 'native:description') {
+            return project.description ? (
+              <p key={section.id} style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.9rem', color: '#7a6898', lineHeight: 1.75, marginBottom: '3rem', maxWidth: '65ch' }}>
+                {project.description}
+              </p>
+            ) : null
+          }
+          if (section.type === 'native:tools') {
+            return (tools.length > 0 || stats.length > 0) ? (
+              <div key={section.id} style={{ display: 'grid', gridTemplateColumns: tools.length > 0 && stats.length > 0 ? '1fr 1fr' : '1fr', gap: '2.5rem', marginBottom: '3.5rem', alignItems: 'start' }}>
+                {tools.length > 0 && (
+                  <section>
+                    <SectionHeader>Tools Used</SectionHeader>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '0.85rem' }}>
+                      {tools.map((tool, i) => <ToolBadge key={i} name={tool} />)}
                     </div>
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
-        )}
-
-        {/* Process tabs */}
-        {availableTabs.length > 0 && (
-          <div style={{
-            borderRadius: '12px',
-            border: '1px solid rgba(176,143,255,0.13)',
-            overflow: 'hidden',
-            background: 'rgba(176,143,255,0.05)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)',
-          }}>
-            {/* Tab bar */}
-            <div style={{
-              display: 'flex',
-              borderBottom: '1px solid rgba(176,143,255,0.10)',
-              overflowX: 'auto',
-              scrollbarWidth: 'none',
-              background: 'rgba(176,143,255,0.03)',
-            }}>
-              {availableTabs.map(tab => (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  style={{
-                    padding: '1rem 1.5rem',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: '0.75rem',
-                    letterSpacing: '0.05em',
-                    whiteSpace: 'nowrap',
-                    color: activeTab === tab.key ? '#b08fff' : '#7a6898',
-                    borderBottom: activeTab === tab.key ? '2px solid #b08fff' : '2px solid transparent',
-                    marginBottom: '-1px',
-                    transition: 'color 0.2s',
-                    boxShadow: activeTab === tab.key ? '0 0 16px rgba(176,143,255,0.08)' : 'none',
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Tab content */}
-            <div style={{ padding: '2rem' }}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.22 }}
-                >
-                  {activeTabData.modules?.length > 0 ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                      {activeTabData.modules.map(mod => (
-                        <ModuleRenderer key={mod.id} module={mod} />
+                  </section>
+                )}
+                {stats.length > 0 && (
+                  <section>
+                    <SectionHeader>Details</SectionHeader>
+                    <div>
+                      {stats.map((s, i) => (
+                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '0.6rem 0', borderBottom: '1px solid #100d1a' }}>
+                          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.68rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#7a6898' }}>{s.label}</span>
+                          <span style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.82rem', color: '#e2e8f0' }}>{s.value}</span>
+                        </div>
                       ))}
                     </div>
-                  ) : null}
-                </motion.div>
-              </AnimatePresence>
+                  </section>
+                )}
+              </div>
+            ) : null
+          }
+          if (section.type === 'native:process-3d') {
+            return availableTabs.length > 0 ? (
+              <div key={section.id} style={{ borderRadius: '12px', border: '1px solid rgba(176,143,255,0.13)', overflow: 'hidden', background: 'rgba(176,143,255,0.05)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)' }}>
+                <div style={{ display: 'flex', borderBottom: '1px solid rgba(176,143,255,0.10)', overflowX: 'auto', scrollbarWidth: 'none', background: 'rgba(176,143,255,0.03)' }}>
+                  {availableTabs.map(tab => (
+                    <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+                      style={{ padding: '1rem 1.5rem', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', letterSpacing: '0.05em', whiteSpace: 'nowrap', color: activeTab === tab.key ? '#b08fff' : '#7a6898', borderBottom: activeTab === tab.key ? '2px solid #b08fff' : '2px solid transparent', marginBottom: '-1px', transition: 'color 0.2s', boxShadow: activeTab === tab.key ? '0 0 16px rgba(176,143,255,0.08)' : 'none' }}>
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+                <div style={{ padding: '2rem' }}>
+                  <AnimatePresence mode="wait">
+                    <motion.div key={activeTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22 }}>
+                      {activeTabData.modules?.length > 0 && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                          {activeTabData.modules.map(mod => <ModuleRenderer key={mod.id} module={mod} />)}
+                        </div>
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              </div>
+            ) : null
+          }
+          return (
+            <div key={section.id} style={{ marginBottom: '2rem' }}>
+              <ModuleRenderer module={section} />
             </div>
-          </div>
-        )}
+          )
+        })}
       </div>
     </div>
   )

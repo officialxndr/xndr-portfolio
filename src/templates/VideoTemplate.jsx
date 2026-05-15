@@ -108,10 +108,58 @@ function VideoPlayer({ src, poster }) {
   )
 }
 
+function ProcessTabs({ tabs, activeTab, setActiveTab, activeTabData }) {
+  return (
+    <div
+      style={{
+        borderRadius: '12px',
+        border: '1px solid rgba(176,143,255,0.13)',
+        overflow: 'hidden',
+        background: 'rgba(176,143,255,0.05)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
+        boxShadow: '0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)',
+      }}
+    >
+      <div style={{ display: 'flex', borderBottom: '1px solid rgba(176,143,255,0.10)', overflowX: 'auto', scrollbarWidth: 'none', background: 'rgba(176,143,255,0.03)' }}>
+        {tabs.map(tab => (
+          <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+            style={{
+              padding: '1rem 1.5rem', background: 'none', border: 'none', cursor: 'pointer',
+              fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', letterSpacing: '0.05em', whiteSpace: 'nowrap',
+              color: activeTab === tab.key ? '#b08fff' : '#7a6898',
+              borderBottom: activeTab === tab.key ? '2px solid #b08fff' : '2px solid transparent',
+              marginBottom: '-1px', transition: 'color 0.2s',
+              boxShadow: activeTab === tab.key ? '0 0 16px rgba(176,143,255,0.08)' : 'none',
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      <div style={{ padding: '2rem' }}>
+        <AnimatePresence mode="wait">
+          <motion.div key={activeTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22 }}>
+            {activeTabData.modules?.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                {activeTabData.modules.map(mod => <ModuleRenderer key={mod.id} module={mod} />)}
+              </div>
+            ) : activeTabData.text ? (
+              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.875rem', color: '#8a9ab0', lineHeight: 1.8, whiteSpace: 'pre-wrap', margin: 0 }}>
+                {activeTabData.text}
+              </p>
+            ) : null}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </div>
+  )
+}
+
 export default function VideoTemplate({ project }) {
   const [activeTab, setActiveTab] = useState('preProduction')
   const content = project.content ?? {}
-  const video = content.video ?? {}
+  const video   = content.video ?? {}
   const process = content.process ?? {}
   const activeTabData = process[activeTab] ?? {}
 
@@ -121,134 +169,59 @@ export default function VideoTemplate({ project }) {
   }
   const availableTabs = PROCESS_TABS.filter(hasContent)
 
+  // Build ordered sections — use stored layout if present, else legacy fallback
+  const sections = content.page_sections?.length
+    ? content.page_sections
+    : [
+        { id: 'dv', type: 'native:video' },
+        { id: 'dd', type: 'native:description' },
+        ...(content.video_modules ?? []),
+        { id: 'dp', type: 'native:process' },
+      ]
+
+  const renderNative = (section) => {
+    if (section.type === 'native:video') {
+      return video.url ? (
+        <div key={section.id} style={{ marginBottom: '3rem' }}>
+          <VideoPlayer src={video.url} poster={video.poster || project.thumbnail} />
+        </div>
+      ) : null
+    }
+    if (section.type === 'native:description') {
+      return project.description ? (
+        <p key={section.id} style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.9rem', color: '#7a6898', lineHeight: 1.7, marginBottom: '3rem', maxWidth: '65ch' }}>
+          {project.description}
+        </p>
+      ) : null
+    }
+    if (section.type === 'native:process') {
+      return availableTabs.length > 0 ? (
+        <ProcessTabs key={section.id} tabs={availableTabs} activeTab={activeTab} setActiveTab={setActiveTab} activeTabData={activeTabData} />
+      ) : null
+    }
+    return null
+  }
+
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        paddingTop: '6rem',
-        paddingBottom: '4rem',
-      }}
-    >
+    <div style={{ minHeight: '100vh', paddingTop: '6rem', paddingBottom: '4rem' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 2rem' }}>
         <div style={{ marginBottom: '0.5rem' }}>
-          <span
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: '0.68rem',
-              letterSpacing: '0.2em',
-              color: '#b08fff',
-              textTransform: 'uppercase',
-              opacity: 0.7,
-            }}
-          >
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.68rem', letterSpacing: '0.2em', color: '#b08fff', textTransform: 'uppercase', opacity: 0.7 }}>
             {project.category}
           </span>
         </div>
-        <h1
-          style={{
-            fontFamily: "'Syne', sans-serif",
-            fontWeight: 800,
-            fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-            color: '#e2e8f0',
-            letterSpacing: '-0.02em',
-            lineHeight: 1,
-            marginBottom: '2.5rem',
-          }}
-        >
+        <h1 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 'clamp(2rem, 5vw, 3.5rem)', color: '#e2e8f0', letterSpacing: '-0.02em', lineHeight: 1, marginBottom: '2.5rem' }}>
           {project.title}
         </h1>
 
-        {video.url && (
-          <div style={{ marginBottom: '3rem' }}>
-            <VideoPlayer src={video.url} poster={video.poster || project.thumbnail} />
-          </div>
+        {sections.filter(s => s.visible !== false).map(section =>
+          section.type.startsWith('native:')
+            ? renderNative(section)
+            : <div key={section.id} style={{ marginBottom: '2rem' }}><ModuleRenderer module={section} /></div>
         )}
 
-        {project.description && (
-          <p
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: '0.9rem',
-              color: '#7a6898',
-              lineHeight: 1.7,
-              marginBottom: '3rem',
-              maxWidth: '65ch',
-            }}
-          >
-            {project.description}
-          </p>
-        )}
-
-        {availableTabs.length > 0 && (
-          <div
-            style={{
-              borderRadius: '12px',
-              border: '1px solid rgba(176,143,255,0.13)',
-              overflow: 'hidden',
-              background: 'rgba(176,143,255,0.05)',
-              backdropFilter: 'blur(24px)',
-              WebkitBackdropFilter: 'blur(24px)',
-              boxShadow: '0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                borderBottom: '1px solid rgba(176,143,255,0.10)',
-                overflowX: 'auto',
-                scrollbarWidth: 'none',
-                background: 'rgba(176,143,255,0.03)',
-              }}
-            >
-              {availableTabs.map(tab => (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  style={{
-                    padding: '1rem 1.5rem',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: '0.75rem',
-                    letterSpacing: '0.05em',
-                    whiteSpace: 'nowrap',
-                    color: activeTab === tab.key ? '#b08fff' : '#7a6898',
-                    borderBottom: activeTab === tab.key ? '2px solid #b08fff' : '2px solid transparent',
-                    marginBottom: '-1px',
-                    transition: 'color 0.2s',
-                    boxShadow: activeTab === tab.key ? '0 0 16px rgba(176,143,255,0.08)' : 'none',
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            <div style={{ padding: '2rem' }}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.22 }}
-                >
-                  {activeTabData.modules?.length > 0 ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                      {activeTabData.modules.map(mod => (
-                        <ModuleRenderer key={mod.id} module={mod} />
-                      ))}
-                    </div>
-                  ) : activeTabData.text ? (
-                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.875rem', color: '#8a9ab0', lineHeight: 1.8, whiteSpace: 'pre-wrap', margin: 0 }}>
-                      {activeTabData.text}
-                    </p>
-                  ) : null}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </div>
+        {availableTabs.length > 0 && !sections.some(s => s.type === 'native:process' && s.visible !== false) && (
+          <ProcessTabs tabs={availableTabs} activeTab={activeTab} setActiveTab={setActiveTab} activeTabData={activeTabData} />
         )}
       </div>
     </div>

@@ -50,7 +50,7 @@ export default function CarouselEditor({ data, onChange, token }) {
             <div key={i} style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', backgroundColor: '#050308', border: '1px solid #160f24', borderRadius: '4px', padding: '0.35rem' }}>
               <div style={{ position: 'relative', width: '70px', height: '44px', flexShrink: 0, borderRadius: '3px', overflow: 'hidden', border: '1px solid #2a1f45', backgroundColor: '#100d1a' }}>
                 <img src={slide.url} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                <div style={{ position: 'absolute', bottom: 2, left: 4, fontFamily: "'Syne', sans-serif", fontSize: '0.55rem', color: '#7a6898' }}>
+                <div style={{ position: 'absolute', bottom: 2, left: 4, fontFamily: "'Syne', sans-serif", fontSize: '0.55rem', color: '#a090bc' }}>
                   {String(i + 1).padStart(2, '0')}
                 </div>
               </div>
@@ -64,9 +64,9 @@ export default function CarouselEditor({ data, onChange, token }) {
               />
               <div style={{ display: 'flex', gap: '0.15rem', flexShrink: 0 }}>
                 <button type="button" onClick={() => moveSlide(i, -1)} disabled={i === 0}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#352848', padding: '2px 4px', fontSize: '11px', opacity: i === 0 ? 0.3 : 1 }}>↑</button>
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a090bc', padding: '2px 4px', fontSize: '11px', opacity: i === 0 ? 0.3 : 1 }}>↑</button>
                 <button type="button" onClick={() => moveSlide(i, 1)} disabled={i === slides.length - 1}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#352848', padding: '2px 4px', fontSize: '11px', opacity: i === slides.length - 1 ? 0.3 : 1 }}>↓</button>
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a090bc', padding: '2px 4px', fontSize: '11px', opacity: i === slides.length - 1 ? 0.3 : 1 }}>↓</button>
                 <button type="button" onClick={() => removeSlide(i)}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2a1520', padding: '2px 5px', fontSize: '11px' }}
                   onMouseEnter={e => e.currentTarget.style.color = '#ff6b6b'}

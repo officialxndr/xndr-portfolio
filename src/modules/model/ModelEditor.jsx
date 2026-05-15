@@ -14,7 +14,7 @@ const inputStyle = {
 }
 
 const label = (text) => (
-  <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#7a6898', marginBottom: '0.3rem' }}>
+  <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#a090bc', marginBottom: '0.3rem' }}>
     {text}
   </div>
 )
@@ -72,13 +72,13 @@ export default function ModelEditor({ data, onChange, token }) {
           border: '1px solid #2a1f45',
           borderRadius: '4px',
           padding: '0.35rem 0.85rem',
-          color: '#7a6898',
+          color: '#a090bc',
           fontFamily: "'Inter', sans-serif",
           fontSize: '0.72rem',
           cursor: 'pointer',
         }}
         onMouseEnter={e => { e.currentTarget.style.borderColor = '#b08fff'; e.currentTarget.style.color = '#b08fff' }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a1f45'; e.currentTarget.style.color = '#7a6898' }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a1f45'; e.currentTarget.style.color = '#a090bc' }}
       >
         {uploading ? 'Uploading…' : 'Upload model'}
       </button>

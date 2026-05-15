@@ -238,8 +238,17 @@ const LAYOUTS = [
 export default function PhotoTemplate({ project }) {
   const [layout, setLayout] = useState('masonry')
   const [lightboxIdx, setLightboxIdx] = useState(null)
-  const photos = project.content?.photos ?? []
-  const modulesBefore = project.content?.modules_before_photos ?? []
+  const content = project.content ?? {}
+  const photos = content.photos ?? []
+  const modulesBefore = content.modules_before_photos ?? []
+
+  const sections = content.page_sections?.length
+    ? content.page_sections
+    : [
+        { id: 'dd', type: 'native:description' },
+        ...modulesBefore,
+        { id: 'dp', type: 'native:photos' },
+      ]
 
   const openLightbox = (i) => setLightboxIdx(i)
   const closeLightbox = () => setLightboxIdx(null)
@@ -290,51 +299,52 @@ export default function PhotoTemplate({ project }) {
           </div>
         </div>
 
-        {project.description && (
-          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.9rem', color: '#7a6898', lineHeight: 1.75, marginBottom: '3rem', maxWidth: '60ch' }}>
-            {project.description}
-          </p>
-        )}
-
-        {modulesBefore.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginBottom: '3rem' }}>
-            {modulesBefore.map(mod => <ModuleRenderer key={mod.id} module={mod} />)}
-          </div>
-        )}
-
-        {photos.length === 0 ? (
-          <div style={{ textAlign: 'center', paddingTop: '4rem', color: '#2a1f45', fontFamily: "'Inter', sans-serif", fontSize: '0.85rem' }}>
-            No photos added yet.
-          </div>
-        ) : layout === 'story' ? (
-          <div>
-            {photos.map((photo, i) => (
-              <StoryItem key={photo.url + i} photo={photo} index={i} onClick={() => openLightbox(i)} />
-            ))}
-          </div>
-        ) : layout === 'masonry' ? (
-          <div style={{ columns: 'auto 280px', columnGap: '0.75rem' }}>
-            {photos.map((photo, i) => (
-              <PhotoItem
-                key={photo.url + i}
-                photo={photo}
-                onClick={() => openLightbox(i)}
-                style={{ breakInside: 'avoid', marginBottom: '0.75rem', display: 'block' }}
-              />
-            ))}
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '0.75rem' }}>
-            {photos.map((photo, i) => (
-              <div key={photo.url + i}
-                style={{ cursor: 'zoom-in', borderRadius: '4px', overflow: 'hidden', position: 'relative', paddingTop: '75%', backgroundColor: '#100d1a' }}
-                onClick={() => openLightbox(i)}
-              >
-                <GridItem photo={photo} index={i} />
+        {sections.filter(s => s.visible !== false).map(section => {
+          if (section.type === 'native:description') {
+            return project.description ? (
+              <p key={section.id} style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.9rem', color: '#7a6898', lineHeight: 1.75, marginBottom: '3rem', maxWidth: '60ch' }}>
+                {project.description}
+              </p>
+            ) : null
+          }
+          if (section.type === 'native:photos') {
+            return (
+              <div key={section.id}>
+                {photos.length === 0 ? (
+                  <div style={{ textAlign: 'center', paddingTop: '4rem', color: '#2a1f45', fontFamily: "'Inter', sans-serif", fontSize: '0.85rem' }}>
+                    No photos added yet.
+                  </div>
+                ) : layout === 'story' ? (
+                  <div>
+                    {photos.map((photo, i) => (
+                      <StoryItem key={photo.url + i} photo={photo} index={i} onClick={() => openLightbox(i)} />
+                    ))}
+                  </div>
+                ) : layout === 'masonry' ? (
+                  <div style={{ columns: 'auto 280px', columnGap: '0.75rem' }}>
+                    {photos.map((photo, i) => (
+                      <PhotoItem key={photo.url + i} photo={photo} onClick={() => openLightbox(i)} style={{ breakInside: 'avoid', marginBottom: '0.75rem', display: 'block' }} />
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '0.75rem' }}>
+                    {photos.map((photo, i) => (
+                      <div key={photo.url + i} style={{ cursor: 'zoom-in', borderRadius: '4px', overflow: 'hidden', position: 'relative', paddingTop: '75%', backgroundColor: '#100d1a' }} onClick={() => openLightbox(i)}>
+                        <GridItem photo={photo} index={i} />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
-        )}
+            )
+          }
+          // module block
+          return (
+            <div key={section.id} style={{ marginBottom: '2rem' }}>
+              <ModuleRenderer module={section} />
+            </div>
+          )
+        })}
       </div>
 
       {/* Bottom fade — images already in place, gradient creates the scroll reveal feeling */}

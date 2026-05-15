@@ -20,7 +20,7 @@ const labelStyle = {
   fontSize: '0.7rem',
   letterSpacing: '0.1em',
   textTransform: 'uppercase',
-  color: '#7a6898',
+  color: '#a090bc',
   display: 'block',
   marginBottom: '0.4rem',
 }
@@ -221,7 +221,7 @@ export default function AdminAboutSettings() {
       }}>
         <button
           onClick={() => navigate('/admin')}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7a6898', display: 'flex', alignItems: 'center', gap: '0.35rem', fontFamily: "'Inter', sans-serif", fontSize: '0.78rem' }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a090bc', display: 'flex', alignItems: 'center', gap: '0.35rem', fontFamily: "'Inter', sans-serif", fontSize: '0.78rem' }}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M9 11L5 7l4-4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -303,7 +303,7 @@ export default function AdminAboutSettings() {
                 transition: 'left 0.2s',
               }} />
             </button>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.78rem', color: '#7a6898' }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.78rem', color: '#a090bc' }}>
               Available for work
             </span>
           </div>
@@ -348,7 +348,7 @@ export default function AdminAboutSettings() {
               <button
                 type="button"
                 onClick={() => photoRef.current?.click()}
-                style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}
+                style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}
               >
                 {form.about_photo ? 'Replace photo' : 'Upload photo'}
               </button>
@@ -497,7 +497,7 @@ export default function AdminAboutSettings() {
               <button
                 type="button"
                 onClick={() => socialIconRef.current?.click()}
-                style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer', whiteSpace: 'nowrap' }}
               >
                 {socialInput.icon ? 'Change icon' : 'Upload icon'}
               </button>

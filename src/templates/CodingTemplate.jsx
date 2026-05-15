@@ -218,6 +218,15 @@ export default function CodingTemplate({ project }) {
   const modulesAfterRepo = content.modules_after_repo ?? []
   const repo = useMemo(() => parseRepoUrl(githubUrl), [githubUrl])
 
+  const sections = content.page_sections?.length
+    ? content.page_sections
+    : [
+        { id: 'dd', type: 'native:description' },
+        ...modules,
+        { id: 'dg', type: 'native:github' },
+        ...modulesAfterRepo,
+      ]
+
   const [meta, setMeta] = useState(null)
   const [langs, setLangs] = useState([])
   const [tree, setTree] = useState([])
@@ -326,78 +335,54 @@ export default function CodingTemplate({ project }) {
           </div>
         )}
 
-        {project.description && (
-          <p style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: '0.92rem',
-            color: '#8a9ab0',
-            lineHeight: 1.75,
-            marginBottom: '3.5rem',
-            maxWidth: '65ch',
-          }}>
-            {project.description}
-          </p>
-        )}
-
-        {/* Modules: carousels, images, video, text — added through admin */}
-        {modules.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginBottom: '4rem' }}>
-            {modules.map(mod => <ModuleRenderer key={mod.id} module={mod} />)}
-          </div>
-        )}
-
-        {/* GitHub data */}
-        {repo ? (
-          <>
-            {loadingGh && !meta && (
-              <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.78rem', color: '#7a6898', textAlign: 'center', padding: '2rem' }}>
-                Loading repo data…
+        {sections.filter(s => s.visible !== false).map(section => {
+          if (section.type === 'native:description') {
+            return project.description ? (
+              <p key={section.id} style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.92rem', color: '#8a9ab0', lineHeight: 1.75, marginBottom: '3.5rem', maxWidth: '65ch' }}>
+                {project.description}
+              </p>
+            ) : null
+          }
+          if (section.type === 'native:github') {
+            return repo ? (
+              <div key={section.id}>
+                {loadingGh && !meta && (
+                  <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.78rem', color: '#7a6898', textAlign: 'center', padding: '2rem' }}>
+                    Loading repo data…
+                  </div>
+                )}
+                {ghError && (
+                  <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.78rem', color: '#ff9e9e', padding: '0.8rem 1rem', backgroundColor: 'rgba(255,107,107,0.06)', border: '1px solid rgba(255,107,107,0.18)', borderRadius: '6px', marginBottom: '2rem' }}>
+                    Couldn't load GitHub data: {ghError}
+                  </div>
+                )}
+                {langs.length > 0 && (
+                  <section style={{ marginBottom: '3.5rem' }}>
+                    <SectionHeader>Languages</SectionHeader>
+                    <LanguagesBar langs={langs} />
+                  </section>
+                )}
+                {tree.length > 0 && (
+                  <section style={{ marginBottom: '3.5rem' }}>
+                    <SectionHeader>Repository</SectionHeader>
+                    <FileTree items={tree} />
+                  </section>
+                )}
+                {readme && (
+                  <section style={{ marginBottom: '2rem' }}>
+                    <SectionHeader>README</SectionHeader>
+                    <ReadmePanel html={readme} owner={repo.owner} repo={repo.repo} branch={branch} />
+                  </section>
+                )}
               </div>
-            )}
-
-            {ghError && (
-              <div style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: '0.78rem',
-                color: '#ff9e9e',
-                padding: '0.8rem 1rem',
-                backgroundColor: 'rgba(255,107,107,0.06)',
-                border: '1px solid rgba(255,107,107,0.18)',
-                borderRadius: '6px',
-                marginBottom: '2rem',
-              }}>
-                Couldn't load GitHub data: {ghError}
-              </div>
-            )}
-
-            {langs.length > 0 && (
-              <section style={{ marginBottom: '3.5rem' }}>
-                <SectionHeader>Languages</SectionHeader>
-                <LanguagesBar langs={langs} />
-              </section>
-            )}
-
-            {tree.length > 0 && (
-              <section style={{ marginBottom: '3.5rem' }}>
-                <SectionHeader>Repository</SectionHeader>
-                <FileTree items={tree} />
-              </section>
-            )}
-
-            {modulesAfterRepo.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginBottom: '3.5rem' }}>
-                {modulesAfterRepo.map(mod => <ModuleRenderer key={mod.id} module={mod} />)}
-              </div>
-            )}
-
-            {readme && (
-              <section style={{ marginBottom: '2rem' }}>
-                <SectionHeader>README</SectionHeader>
-                <ReadmePanel html={readme} owner={repo.owner} repo={repo.repo} branch={branch} />
-              </section>
-            )}
-          </>
-        ) : null}
+            ) : null
+          }
+          return (
+            <div key={section.id} style={{ marginBottom: '2rem' }}>
+              <ModuleRenderer module={section} />
+            </div>
+          )
+        })}
       </div>
     </div>
   )

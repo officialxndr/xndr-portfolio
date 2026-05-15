@@ -20,7 +20,7 @@ const labelStyle = {
   fontSize: '0.7rem',
   letterSpacing: '0.1em',
   textTransform: 'uppercase',
-  color: '#7a6898',
+  color: '#a090bc',
   display: 'block',
   marginBottom: '0.4rem',
 }
@@ -79,7 +79,7 @@ export default function AdminSiteSettings() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#060509' }}>
       <div style={{ borderBottom: '1px solid #2a1f45', padding: '1rem 2rem', display: 'flex', alignItems: 'center', gap: '1rem', backgroundColor: 'rgba(7,10,16,0.9)', position: 'sticky', top: 0, zIndex: 10, backdropFilter: 'blur(12px)' }}>
-        <button onClick={() => navigate('/admin')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7a6898', display: 'flex', alignItems: 'center', gap: '0.35rem', fontFamily: "'Inter', sans-serif", fontSize: '0.78rem' }}>
+        <button onClick={() => navigate('/admin')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a090bc', display: 'flex', alignItems: 'center', gap: '0.35rem', fontFamily: "'Inter', sans-serif", fontSize: '0.78rem' }}>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 11L5 7l4-4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
           Back
         </button>
@@ -113,7 +113,7 @@ export default function AdminSiteSettings() {
               )}
               <input ref={logoRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleLogoUpload} />
               <button type="button" onClick={() => logoRef.current?.click()}
-                style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
+                style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
                 {form.logo ? 'Replace logo' : 'Upload logo'}
               </button>
               {form.logo && (
@@ -137,7 +137,7 @@ export default function AdminSiteSettings() {
               onFocus={e => e.target.style.borderColor = '#b08fff'} onBlur={e => e.target.style.borderColor = '#2a1f45'} />
             <input ref={videoRef} type="file" accept="video/*" style={{ display: 'none' }} onChange={handleVideoUpload} />
             <button type="button" onClick={() => videoRef.current?.click()}
-              style={{ marginTop: '0.5rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
+              style={{ marginTop: '0.5rem', background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
               Upload video
             </button>
           </div>
@@ -155,7 +155,7 @@ export default function AdminSiteSettings() {
                 const active = form.hero_morph_speed === opt.value
                 return (
                   <button key={opt.value} type="button" onClick={() => set('hero_morph_speed', opt.value)}
-                    style={{ flex: 1, padding: '0.4rem 0', border: `1px solid ${active ? '#b08fff' : '#2a1f45'}`, borderRadius: '5px', background: active ? 'rgba(176,143,255,0.12)' : 'none', color: active ? '#b08fff' : '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.15s' }}>
+                    style={{ flex: 1, padding: '0.4rem 0', border: `1px solid ${active ? '#b08fff' : '#2a1f45'}`, borderRadius: '5px', background: active ? 'rgba(176,143,255,0.12)' : 'none', color: active ? '#b08fff' : '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.15s' }}>
                     {opt.label}
                   </button>
                 )
@@ -196,7 +196,7 @@ export default function AdminSiteSettings() {
                 const val = morphInput.trim()
                 if (val) { setMorphItems(items => [...items, val]); setMorphInput('') }
               }}
-              style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.4rem 0.85rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>
               Add
             </button>
           </div>

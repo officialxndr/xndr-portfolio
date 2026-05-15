@@ -98,7 +98,7 @@ export default function AdminPhotoEditor({ photos, onChange, token }) {
       >
         {uploading ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.8rem', color: '#7a6898' }}>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.8rem', color: '#a090bc' }}>
               Uploading… {uploadProgress}%
             </div>
             <div style={{ width: '200px', height: '3px', backgroundColor: '#2a1f45', borderRadius: '2px' }}>
@@ -107,7 +107,7 @@ export default function AdminPhotoEditor({ photos, onChange, token }) {
           </div>
         ) : (
           <>
-            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.8rem', color: '#7a6898', marginBottom: '0.85rem' }}>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.8rem', color: '#a090bc', marginBottom: '0.85rem' }}>
               Drag photos here, or
             </div>
             <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -118,7 +118,7 @@ export default function AdminPhotoEditor({ photos, onChange, token }) {
               </button>
               <input ref={folderRef} type="file" accept="image/*" multiple webkitdirectory="" style={{ display: 'none' }} onChange={handleFiles} />
               <button type="button" onClick={() => folderRef.current?.click()}
-                style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.45rem 1rem', color: '#7a6898', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
+                style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '5px', padding: '0.45rem 1rem', color: '#a090bc', fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', cursor: 'pointer' }}>
                 Select folder
               </button>
             </div>
@@ -172,7 +172,7 @@ export default function AdminPhotoEditor({ photos, onChange, token }) {
 
                 <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <div>
-                    <label style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#7a6898', display: 'block', marginBottom: '0.35rem' }}>
+                    <label style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#a090bc', display: 'block', marginBottom: '0.35rem' }}>
                       Note
                     </label>
                     <textarea
@@ -192,7 +192,7 @@ export default function AdminPhotoEditor({ photos, onChange, token }) {
                         if (!val) return null
                         return (
                           <div key={e.key} style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
-                            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.58rem', color: '#352848', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{e.label}</div>
+                            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.58rem', color: '#a090bc', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{e.label}</div>
                             <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.78rem', color: '#8a9ab0' }}>{val}</div>
                           </div>
                         )
@@ -202,11 +202,11 @@ export default function AdminPhotoEditor({ photos, onChange, token }) {
 
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: 'auto', flexWrap: 'wrap' }}>
                     <button type="button" onClick={() => movePhoto(expandedIdx, expandedIdx - 1)} disabled={expandedIdx === 0}
-                      style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '4px', padding: '0.3rem 0.6rem', color: '#7a6898', fontSize: '0.72rem', cursor: 'pointer', fontFamily: "'Inter', sans-serif", opacity: expandedIdx === 0 ? 0.3 : 1 }}>
+                      style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '4px', padding: '0.3rem 0.6rem', color: '#a090bc', fontSize: '0.72rem', cursor: 'pointer', fontFamily: "'Inter', sans-serif", opacity: expandedIdx === 0 ? 0.3 : 1 }}>
                       ← Move left
                     </button>
                     <button type="button" onClick={() => movePhoto(expandedIdx, expandedIdx + 1)} disabled={expandedIdx === photos.length - 1}
-                      style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '4px', padding: '0.3rem 0.6rem', color: '#7a6898', fontSize: '0.72rem', cursor: 'pointer', fontFamily: "'Inter', sans-serif", opacity: expandedIdx === photos.length - 1 ? 0.3 : 1 }}>
+                      style={{ background: 'none', border: '1px solid #2a1f45', borderRadius: '4px', padding: '0.3rem 0.6rem', color: '#a090bc', fontSize: '0.72rem', cursor: 'pointer', fontFamily: "'Inter', sans-serif", opacity: expandedIdx === photos.length - 1 ? 0.3 : 1 }}>
                       Move right →
                     </button>
                     <button type="button" onClick={() => removePhoto(expandedIdx)}

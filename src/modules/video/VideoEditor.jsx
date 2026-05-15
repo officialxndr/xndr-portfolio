@@ -61,7 +61,7 @@ export default function VideoEditor({ data, onChange, token }) {
           border: '1px solid #2a1f45',
           borderRadius: '4px',
           padding: '0.35rem 0.85rem',
-          color: uploading ? '#7a6898' : '#7a6898',
+          color: uploading ? '#a090bc' : '#a090bc',
           fontFamily: "'Inter', sans-serif",
           fontSize: '0.72rem',
           cursor: uploading ? 'not-allowed' : 'pointer',

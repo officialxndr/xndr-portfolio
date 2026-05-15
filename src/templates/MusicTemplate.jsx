@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import ModuleRenderer from '../modules/ModuleRenderer.jsx'
 
 // ─── Music video player ──────────────────────────────────────────────────────
 
@@ -368,6 +369,14 @@ export default function MusicTemplate({ project }) {
   }), [content.album])
   const tracks = album.tracks
 
+  const sections = content.page_sections?.length
+    ? content.page_sections
+    : [
+        { id: 'dd', type: 'native:description' },
+        { id: 'dv', type: 'native:music-videos' },
+        { id: 'da', type: 'native:album' },
+      ]
+
   const audioRef = useRef(null)
   const [currentIdx, setCurrentIdx] = useState(null)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -455,33 +464,28 @@ export default function MusicTemplate({ project }) {
           {project.title}
         </h1>
 
-        {project.description && (
-          <p style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: '0.92rem',
-            color: '#8a9ab0',
-            lineHeight: 1.75,
-            marginBottom: '3.5rem',
-            maxWidth: '65ch',
-          }}>
-            {project.description}
-          </p>
-        )}
-
-        {/* Music videos */}
-        {musicVideos.length > 0 && (
-          <section style={{ marginBottom: '4rem' }}>
-            <SectionHeader>{musicVideos.length === 1 ? 'Music Video' : 'Music Videos'}</SectionHeader>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2.25rem' }}>
-              {musicVideos.map((v, i) => (
-                <MusicVideoPlayer key={v.id ?? i} src={v.url} poster={v.poster} title={v.title} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Album section */}
-        {(album.title || album.cover || tracks.length > 0 || album.writeup) && (
+        {sections.filter(s => s.visible !== false).map(section => {
+          if (section.type === 'native:description') {
+            return project.description ? (
+              <p key={section.id} style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.92rem', color: '#8a9ab0', lineHeight: 1.75, marginBottom: '3.5rem', maxWidth: '65ch' }}>
+                {project.description}
+              </p>
+            ) : null
+          }
+          if (section.type === 'native:music-videos') {
+            return musicVideos.length > 0 ? (
+              <section key={section.id} style={{ marginBottom: '4rem' }}>
+                <SectionHeader>{musicVideos.length === 1 ? 'Music Video' : 'Music Videos'}</SectionHeader>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2.25rem' }}>
+                  {musicVideos.map((v, i) => (
+                    <MusicVideoPlayer key={v.id ?? i} src={v.url} poster={v.poster} title={v.title} />
+                  ))}
+                </div>
+              </section>
+            ) : null
+          }
+          if (section.type === 'native:album') {
+            return (album.title || album.cover || tracks.length > 0 || album.writeup) ? (
           <section style={{ marginBottom: '3rem' }}>
             <SectionHeader>Album</SectionHeader>
 
@@ -604,7 +608,14 @@ export default function MusicTemplate({ project }) {
               )}
             </AnimatePresence>
           </section>
-        )}
+            ) : null
+          }
+          return (
+            <div key={section.id} style={{ marginBottom: '2rem' }}>
+              <ModuleRenderer module={section} />
+            </div>
+          )
+        })}
       </div>
 
       {/* Sticky player */}

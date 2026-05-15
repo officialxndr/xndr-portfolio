@@ -1,5 +1,46 @@
 ﻿export const MODULE_DEFS = [
   {
+    type: 'before-after',
+    label: 'Before / After',
+    description: 'Draggable slider comparing two images side by side',
+    defaultData: { before: { url: '', label: 'Before' }, after: { url: '', label: 'After' }, caption: '' },
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <rect x="0.5" y="1" width="6" height="14" rx="1"/>
+        <rect x="9.5" y="1" width="6" height="14" rx="1" opacity="0.4"/>
+        <rect x="7.25" y="0" width="1.5" height="16" rx="0.75"/>
+      </svg>
+    ),
+  },
+  {
+    type: 'stats',
+    label: 'Stats',
+    description: 'Key/value spec sheet — runtime, frame count, render time…',
+    defaultData: { stats: [{ label: '', value: '' }] },
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <rect x="0" y="2"  width="5" height="1.8" rx="0.9"/>
+        <rect x="7" y="2"  width="9" height="1.8" rx="0.9" opacity="0.45"/>
+        <rect x="0" y="7"  width="5" height="1.8" rx="0.9"/>
+        <rect x="7" y="7"  width="6" height="1.8" rx="0.9" opacity="0.45"/>
+        <rect x="0" y="12" width="5" height="1.8" rx="0.9"/>
+        <rect x="7" y="12" width="8" height="1.8" rx="0.9" opacity="0.45"/>
+      </svg>
+    ),
+  },
+  {
+    type: 'embed',
+    label: 'Embed',
+    description: 'YouTube, Vimeo, Figma, Sketchfab, CodePen — any iframe URL',
+    defaultData: { url: '', aspectRatio: '16/9', caption: '' },
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="1" y="3" width="14" height="10" rx="1.5"/>
+        <path d="M5.5 8l-2-2 2-2M10.5 6l2 2-2 2"/>
+      </svg>
+    ),
+  },
+  {
     type: 'text',
     label: 'Text Block',
     description: 'Paragraph, notes, or description',
