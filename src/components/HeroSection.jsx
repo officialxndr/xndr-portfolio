@@ -35,7 +35,7 @@ export default function HeroSection({ heroVideo, logo, morphTexts, morphSpeed = 
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           className="absolute inset-0 w-full h-full object-cover"
           style={{ zIndex: 0 }}
         />

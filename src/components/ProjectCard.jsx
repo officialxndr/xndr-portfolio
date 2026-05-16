@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 
@@ -15,8 +15,24 @@ export default function ProjectCard({ project }) {
   const thumb = project.thumbnail ?? ''
   const video = isVideo(thumb)
   const videoRef = useRef(null)
+  const containerRef = useRef(null)
+  const [isInView, setIsInView] = useState(false)
+
+  // Only load video when the card is near the viewport
+  useEffect(() => {
+    if (!video) return
+    const el = containerRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setIsInView(true) },
+      { rootMargin: '200px' }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [video])
 
   useEffect(() => {
+    if (!isInView) return
     const v = videoRef.current
     if (!v) return
 
@@ -34,10 +50,11 @@ export default function ProjectCard({ project }) {
         document.removeEventListener('click', handler)
       }
     }
-  }, [thumb])
+  }, [thumb, isInView])
 
   return (
     <motion.div
+      ref={containerRef}
       layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -66,12 +83,12 @@ export default function ProjectCard({ project }) {
         {video ? (
           <video
             ref={videoRef}
-            src={thumb}
+            src={isInView ? thumb : undefined}
             autoPlay
             muted
             loop
             playsInline
-            preload="auto"
+            preload="none"
             style={{
               position: 'absolute',
               inset: 0,

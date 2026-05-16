@@ -18,7 +18,12 @@ const isProd = process.env.NODE_ENV === 'production'
 app.use(cors({ origin: isProd ? false : 'http://localhost:5173' }))
 app.use(express.json())
 
-app.use('/uploads', express.static(join(__dirname, '..', 'public', 'uploads')))
+app.use('/uploads', express.static(join(__dirname, '..', 'public', 'uploads'), {
+  maxAge: '7d',
+  setHeaders: (res) => {
+    res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400')
+  },
+}))
 
 app.use('/api/auth', authRouter)
 app.use('/api/projects', projectsRouter)
