@@ -224,7 +224,7 @@ export default function LiquidGradient() {
 
     // ─── Loop ─────────────────────────────────────────────────────────────────
     const FRAME_BUDGET = isMobile ? 1000 / 30 : 0
-    let rafId, lastRenderTime = 0
+    let rafId = null, lastRenderTime = 0
     let orientationActive = false
     let autoT = 0
 
@@ -251,6 +251,17 @@ export default function LiquidGradient() {
       renderer.render(scene, camera)
     }
     tick()
+
+    // Pause loop when tab is hidden so mobile browsers don't evict the tab
+    const handleVisibility = () => {
+      if (document.hidden) {
+        if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null }
+        clock.stop()
+      } else {
+        if (rafId === null) { clock.start(); tick() }
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
 
     // ─── Events ───────────────────────────────────────────────────────────────
     const onMouse = (e) => addTouch(e.clientX / window.innerWidth, 1 - e.clientY / window.innerHeight)
@@ -301,7 +312,8 @@ export default function LiquidGradient() {
 
     // ─── Cleanup ──────────────────────────────────────────────────────────────
     return () => {
-      cancelAnimationFrame(rafId)
+      if (rafId !== null) cancelAnimationFrame(rafId)
+      document.removeEventListener('visibilitychange', handleVisibility)
       window.removeEventListener('mousemove', onMouse)
       window.removeEventListener('touchmove', onTouch)
       window.removeEventListener('resize', onResize)

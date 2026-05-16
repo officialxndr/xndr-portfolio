@@ -48,9 +48,26 @@ export default function About() {
   const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
   const [copiedKey, setCopiedKey] = useState(null)
   const copyToClipboard = (value, key) => {
-    navigator.clipboard.writeText(value)
-    setCopiedKey(key)
-    setTimeout(() => setCopiedKey(null), 2000)
+    const confirm = () => {
+      setCopiedKey(key)
+      setTimeout(() => setCopiedKey(null), 2000)
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(value).then(confirm).catch(() => fallbackCopy(value, confirm))
+    } else {
+      fallbackCopy(value, confirm)
+    }
+  }
+  const fallbackCopy = (value, onSuccess) => {
+    const el = document.createElement('input')
+    el.value = value
+    el.style.cssText = 'position:fixed;top:-9999px;opacity:0'
+    document.body.appendChild(el)
+    el.focus()
+    el.select()
+    el.setSelectionRange(0, 99999)
+    try { document.execCommand('copy'); onSuccess() } catch {}
+    document.body.removeChild(el)
   }
 
   return (
@@ -69,7 +86,7 @@ export default function About() {
           fontFamily: "'Syne', sans-serif",
           fontSize: '0.65rem',
           letterSpacing: '0.25em',
-          color: '#2a1f45',
+          color: '#b08fff',
           textTransform: 'uppercase',
           marginBottom: '4rem',
         }}>
@@ -194,10 +211,10 @@ export default function About() {
                   fontFamily: "'Syne', sans-serif",
                   fontSize: '0.62rem',
                   letterSpacing: '0.22em',
-                  color: '#2a1f45',
+                  color: '#b08fff',
                   textTransform: 'uppercase',
                   marginBottom: '0.6rem',
-                  textAlign: 'center',
+                  textAlign: 'left',
                 }}>
                   Contact
                 </div>
@@ -266,10 +283,10 @@ export default function About() {
                   fontFamily: "'Syne', sans-serif",
                   fontSize: '0.62rem',
                   letterSpacing: '0.22em',
-                  color: '#2a1f45',
+                  color: '#b08fff',
                   textTransform: 'uppercase',
                   marginBottom: '0.6rem',
-                  textAlign: 'center',
+                  textAlign: 'left',
                 }}>
                   Socials
                 </div>
@@ -365,7 +382,7 @@ export default function About() {
                   fontFamily: "'Syne', sans-serif",
                   fontSize: '0.62rem',
                   letterSpacing: '0.22em',
-                  color: '#2a1f45',
+                  color: '#b08fff',
                   textTransform: 'uppercase',
                   marginBottom: '0.9rem',
                 }}>

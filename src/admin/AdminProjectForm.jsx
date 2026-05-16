@@ -293,8 +293,9 @@ export default function AdminProjectForm() {
 
   const handleVideoUpload = async (e) => {
     const file = e.target.files?.[0]
+    e.target.value = ''
     if (!file) return
-    try { const url = await uploadFile(file); set('video_url', url) } catch { setError('Upload failed') }
+    try { const { url } = await uploadUtil(file, token); set('video_url', url) } catch { setError('Upload failed') }
   }
 
   const handleSubmit = async (e) => {

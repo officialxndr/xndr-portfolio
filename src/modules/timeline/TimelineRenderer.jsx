@@ -33,52 +33,113 @@ function useScrollDriven(containerRef, stepsLength, snap) {
   const [activeStep, setActiveStep] = useState(0)
   const [lineProgress, setLineProgress] = useState(0)
   const prevStepRef = useRef(0)
-  const scrollDirRef = useRef(true) // true = scrolling down
+  const scrollDirRef = useRef(true)
 
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
 
-    let isSnapping = false
-    let snapTimer = null
+    let locked = false
+    let unlockCleanup = null
+    let touchStartY = 0
+    let touchStartStep = 0
 
-    const onScroll = () => {
+    const getInfo = () => {
       const rect = el.getBoundingClientRect()
       const scrolled = -rect.top
       const scrollable = el.offsetHeight - window.innerHeight
+      const progress = scrollable > 0 ? Math.max(0, Math.min(1, scrolled / scrollable)) : 0
+      // N-1 equal intervals: step i sits at progress = i/(N-1), so step N-1 is at full scroll
+      const step = Math.max(0, Math.min(stepsLength - 1, Math.round(progress * (stepsLength - 1))))
+      return { scrolled, scrollable, progress, step, absTop: rect.top + window.scrollY }
+    }
+
+    const goToStep = (next) => {
+      const { absTop, scrollable } = getInfo()
       if (scrollable <= 0) return
-
-      const progress = Math.max(0, Math.min(1, scrolled / scrollable))
-      const rawStep = progress * stepsLength
-      const next = Math.min(Math.floor(rawStep), stepsLength - 1)
-
+      locked = true
       scrollDirRef.current = next >= prevStepRef.current
-      prevStepRef.current = next
-
-      setActiveStep(next)
-      // Fill reaches dot i exactly when step i activates
-      setLineProgress(Math.min(100, (rawStep / Math.max(stepsLength - 1, 1)) * 100))
-
-      if (snap && !isSnapping) {
-        clearTimeout(snapTimer)
-        snapTimer = setTimeout(() => {
-          const targetStep = Math.min(Math.round(rawStep), stepsLength - 1)
-          const absTop = el.getBoundingClientRect().top + window.scrollY
-          const scrollable2 = el.offsetHeight - window.innerHeight
-          const targetY = absTop + (targetStep / stepsLength) * scrollable2
-          isSnapping = true
-          window.scrollTo({ top: targetY, behavior: 'smooth' })
-          // Re-enable snapping after smooth scroll finishes (~700ms)
-          setTimeout(() => { isSnapping = false }, 800)
-        }, 200)
+      const frac = stepsLength > 1 ? next / (stepsLength - 1) : 0
+      window.scrollTo({ top: absTop + frac * scrollable, behavior: 'smooth' })
+      // Hold lock until the animation finishes so rapid notches only advance one step
+      unlockCleanup?.()
+      const unlock = () => { locked = false; unlockCleanup = null }
+      if ('onscrollend' in window) {
+        window.addEventListener('scrollend', unlock, { once: true })
+        unlockCleanup = () => window.removeEventListener('scrollend', unlock)
+      } else {
+        const t = setTimeout(unlock, 500)
+        unlockCleanup = () => clearTimeout(t)
       }
     }
 
+    const onScroll = () => {
+      const { scrollable, progress, step } = getInfo()
+      if (scrollable <= 0) return
+      if (!locked) scrollDirRef.current = step >= prevStepRef.current
+      prevStepRef.current = step
+      setActiveStep(step)
+      setLineProgress(progress * 100)
+    }
+
+    const onWheel = (e) => {
+      const { scrolled, scrollable, step } = getInfo()
+      if (scrolled < 0 || scrolled > scrollable) return
+      const dir = e.deltaY > 0 ? 1 : -1
+      const target = step + dir
+      if (target < 0 || target >= stepsLength) return  // at boundary — let scroll propagate
+      e.preventDefault()
+      if (locked) return
+      goToStep(target)
+    }
+
+    const onTouchStart = (e) => {
+      const { step } = getInfo()
+      touchStartY = e.touches[0].clientY
+      touchStartStep = step
+    }
+
+    const onTouchMove = (e) => {
+      const { scrolled, scrollable } = getInfo()
+      if (scrolled < 0 || scrolled > scrollable) return
+      const dy = touchStartY - e.touches[0].clientY
+      if (Math.abs(dy) < 5) return
+      const dir = dy > 0 ? 1 : -1
+      if (dir > 0 && touchStartStep >= stepsLength - 1) return  // last step — allow scroll out
+      if (dir < 0 && touchStartStep <= 0) return               // first step — allow scroll out
+      e.preventDefault()
+    }
+
+    const onTouchEnd = (e) => {
+      if (locked) return
+      const { scrolled, scrollable } = getInfo()
+      if (scrolled < 0 || scrolled > scrollable) return
+      const dy = touchStartY - e.changedTouches[0].clientY
+      if (Math.abs(dy) < 30) return
+      const dir = dy > 0 ? 1 : -1
+      const target = touchStartStep + dir
+      if (target < 0 || target >= stepsLength) return
+      goToStep(target)
+    }
+
     window.addEventListener('scroll', onScroll, { passive: true })
+    if (snap) {
+      window.addEventListener('wheel', onWheel, { passive: false })
+      window.addEventListener('touchstart', onTouchStart, { passive: true })
+      window.addEventListener('touchmove', onTouchMove, { passive: false })
+      window.addEventListener('touchend', onTouchEnd, { passive: true })
+    }
     onScroll()
+
     return () => {
+      unlockCleanup?.()
       window.removeEventListener('scroll', onScroll)
-      clearTimeout(snapTimer)
+      if (snap) {
+        window.removeEventListener('wheel', onWheel)
+        window.removeEventListener('touchstart', onTouchStart)
+        window.removeEventListener('touchmove', onTouchMove)
+        window.removeEventListener('touchend', onTouchEnd)
+      }
     }
   }, [stepsLength, snap])
 

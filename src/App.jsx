@@ -19,8 +19,8 @@ function PortfolioApp() {
   const location = useLocation()
   const isAdmin = location.pathname.startsWith('/admin')
   const config = useSiteConfig()
-  const [loading, setLoading] = useState(true)
-  const done = useCallback(() => setLoading(false), [])
+  const [loading, setLoading] = useState(() => !sessionStorage.getItem('portfolio_loaded'))
+  const done = useCallback(() => { sessionStorage.setItem('portfolio_loaded', '1'); setLoading(false) }, [])
 
   const allRoutes = (
     <Routes>
