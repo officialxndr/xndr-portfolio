@@ -7,6 +7,7 @@ import ModelRenderer       from './model/ModelRenderer.jsx'
 import BeforeAfterRenderer from './before-after/BeforeAfterRenderer.jsx'
 import StatsRenderer       from './stats/StatsRenderer.jsx'
 import EmbedRenderer       from './embed/EmbedRenderer.jsx'
+import TimelineRenderer    from './timeline/TimelineRenderer.jsx'
 
 export default function ModuleRenderer({ module: mod }) {
   switch (mod.type) {
@@ -19,6 +20,7 @@ export default function ModuleRenderer({ module: mod }) {
     case 'before-after': return <BeforeAfterRenderer data={mod.data} />
     case 'stats':        return <StatsRenderer       data={mod.data} />
     case 'embed':        return <EmbedRenderer       data={mod.data} />
+    case 'timeline':     return <TimelineRenderer    data={mod.data} />
     default:             return null
   }
 }

@@ -12,6 +12,7 @@ import ModelEditor       from '../modules/model/ModelEditor.jsx'
 import BeforeAfterEditor from '../modules/before-after/BeforeAfterEditor.jsx'
 import StatsEditor       from '../modules/stats/StatsEditor.jsx'
 import EmbedEditor       from '../modules/embed/EmbedEditor.jsx'
+import TimelineEditor    from '../modules/timeline/TimelineEditor.jsx'
 
 const newId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
 
@@ -98,11 +99,15 @@ function ModuleCard({ module: mod, index, total, onUpdate, onRemove, onMove, tok
             {mod.type === 'before-after' && <BeforeAfterEditor data={mod.data} onChange={onUpdate} token={token} />}
             {mod.type === 'stats'        && <StatsEditor       data={mod.data} onChange={onUpdate} />}
             {mod.type === 'embed'        && <EmbedEditor       data={mod.data} onChange={onUpdate} />}
+            {mod.type === 'timeline'     && <TimelineEditor    data={mod.data} onChange={onUpdate} token={token} />}
           </>
         ) : (
           /* Preview — renders exactly as it appears on the public page */
           <div style={{ backgroundColor: '#050308', borderRadius: '5px', border: '1px solid #160f24', padding: '1.25rem', minHeight: '60px' }}>
             {(() => {
+              if (mod.type === 'timeline' && mod.data?.scrollDriven) {
+                return <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', color: '#7a6898', textAlign: 'center', padding: '1rem 0' }}>Scroll-driven — open the project page to preview</div>
+              }
               const hasContent =
                 mod.type === 'text'         ? mod.data?.text :
                 mod.type === 'video'        ? mod.data?.url :
@@ -112,7 +117,8 @@ function ModuleCard({ module: mod, index, total, onUpdate, onRemove, onMove, tok
                 mod.type === 'model'        ? mod.data?.url :
                 mod.type === 'before-after' ? (mod.data?.before?.url || mod.data?.after?.url) :
                 mod.type === 'stats'        ? mod.data?.stats?.some(s => s.label || s.value) :
-                mod.type === 'embed'        ? mod.data?.url : false
+                mod.type === 'embed'        ? mod.data?.url :
+                mod.type === 'timeline'     ? mod.data?.steps?.length : false
               return hasContent
                 ? <ModuleRenderer module={mod} />
                 : <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', color: '#a090bc', textAlign: 'center', padding: '1rem 0' }}>Add content in Edit mode to see a preview</div>

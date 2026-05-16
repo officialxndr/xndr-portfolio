@@ -54,7 +54,15 @@ export default function About() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', padding: '8rem 2.5rem 6rem', backgroundColor: 'transparent' }}>
+    <div className="ab-outer" style={{ minHeight: '100vh', backgroundColor: 'transparent' }}>
+      <style>{`
+        .ab-outer { padding: 8rem 2.5rem 6rem; overflow-x: hidden; }
+        .ab-grid  { display: grid; grid-template-columns: minmax(200px, 260px) 1fr; gap: 5rem; align-items: start; }
+        @media (max-width: 700px) {
+          .ab-outer { padding: 5.5rem 1.25rem 4rem; }
+          .ab-grid  { grid-template-columns: 1fr; gap: 2rem; }
+        }
+      `}</style>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
 
         <motion.div {...fade(0)} style={{
@@ -68,20 +76,15 @@ export default function About() {
           About
         </motion.div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(200px, 260px) 1fr',
-          gap: '5rem',
-          alignItems: 'start',
-        }}>
+        <div className="ab-grid">
 
           {/* Left: Profile photo */}
-          <motion.div {...fade(0.1)}>
+          <motion.div {...fade(0.1)} style={{ minWidth: 0 }}>
             <svg
               viewBox="-170 -255 430 430"
               width="220"
               height="220"
-              style={{ overflow: 'visible', display: 'block', margin: '0 auto' }}
+              style={{ overflow: 'hidden', display: 'block', margin: '0 auto' }}
             >
               <defs>
                 <clipPath id="blob-photo-clip">
@@ -220,7 +223,7 @@ export default function About() {
                       }}
                     >
                       <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.58rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4a3a6a', marginBottom: '0.2rem' }}>Email</div>
-                      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', color: copiedKey === 'email' ? '#b08fff' : '#7a6898', transition: 'color 0.2s' }}>
+                      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', color: copiedKey === 'email' ? '#b08fff' : '#7a6898', transition: 'color 0.2s', overflowWrap: 'break-word', wordBreak: 'break-all' }}>
                         {copiedKey === 'email' ? 'Copied!' : email}
                       </div>
                     </div>
@@ -247,7 +250,7 @@ export default function About() {
                       }}
                     >
                       <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '0.58rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4a3a6a', marginBottom: '0.2rem' }}>{c.label}</div>
-                      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', color: copiedKey === `contact-${i}` ? '#b08fff' : '#7a6898', transition: 'color 0.2s' }}>
+                      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', color: copiedKey === `contact-${i}` ? '#b08fff' : '#7a6898', transition: 'color 0.2s', overflowWrap: 'break-word', wordBreak: 'break-all' }}>
                         {copiedKey === `contact-${i}` ? 'Copied!' : c.url}
                       </div>
                     </div>
@@ -317,10 +320,10 @@ export default function About() {
           </motion.div>
 
           {/* Right: Content */}
-          <div>
+          <div style={{ minWidth: 0 }}>
             <motion.h1 {...fade(0.15)} style={{
               fontFamily: "'Syne', sans-serif",
-              fontSize: 'clamp(2rem, 4vw, 3.5rem)',
+              fontSize: 'clamp(1.75rem, 8vw, 3.5rem)',
               fontWeight: 800,
               color: '#ede8f8',
               lineHeight: 1.05,
@@ -368,7 +371,7 @@ export default function About() {
                 }}>
                   Tools & Programs
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, 84px)', gap: '0.75rem', maxWidth: '540px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))', gap: '0.75rem' }}>
                   {tools.map(tool => {
                     const icon = TOOL_ICONS[tool]
                     return (
